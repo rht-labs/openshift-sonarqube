@@ -5,28 +5,57 @@ metadata:
   name: sonarqube
 objects:
 - apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      name: "${NAME}"
+    name: "${NAME}"
+  spec:
+    tags:
+      - annotations:
+          "openshift.io/imported-from": "sonarqube:latest"
+        from:
+          kind: DockerImage
+          name: "sonarqube:image"
+        importPolicy:
+        name: "latest"
+        referencePolicy:
+          type: Source
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: "Exposes and load balances the application pods"
+  spec:
+    ports:
+      - name: "web"
+        port: 80
+        targetPort: 9000
+    selector:
+      name: "${NAME}"
+- apiVersion: v1
   kind: BuildConfig
   metadata:
     creationTimestamp: null
     labels:
-      app: openshift-sonarqube
-      appName: sonarqube
-    name: openshift-sonarqube
+      app: "${NAME}"
+      name: "${NAME}"
+    name: "${NAME}"
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: openshift-sonarqube:latest
+        name: "${NAME}":latest
     source:
       git:
-        uri: https://github.com/InfoSec812/openshift-sonarqube.git
+        uri: https://github.com/InfoSec812/"${NAME}".git
       type: Git
     strategy:
       dockerStrategy:
         from:
           kind: ImageStreamTag
           name: sonarqube:latest
-          namespace: labs-ci-cd
       type: Docker
     triggers:
     - github:
@@ -36,20 +65,21 @@ objects:
         secret: ${GENERIC_SECRET}
       type: Generic
     - type: ConfigChange
-    - imageChange: {}
-      type: ImageChange
+    - type: ImageChange
+      imageChange: {}
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     labels:
-      app: openshift-sonarqube
+      app: "${NAME}"
       appName: sonarqube
-    name: openshift-sonarqube
+      name: "${NAME}"
+    name: "${NAME}"
   spec:
     replicas: 1
     selector:
-      app: openshift-sonarqube
-      deploymentconfig: openshift-sonarqube
+      app: "${NAME}"
+      deploymentconfig: "${NAME}"
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -63,8 +93,8 @@ objects:
     template:
       metadata:
         labels:
-          app: openshift-sonarqube
-          deploymentconfig: openshift-sonarqube
+          app: "${NAME}"
+          deploymentconfig: "${NAME}"
       spec:
         containers:
         - env:
@@ -112,7 +142,7 @@ objects:
             value: ${SONARQUBE_BUILDBREAKER_THRESHOLD}
           - name: SONAR_BUILDBREAKER_DISABLE
             value: ${SONAR_BUILDBREAKER_DISABLE}
-          image: 172.30.223.20:5000/labs-ci-cd/openshift-sonarqube@sha256:43f439578deefa7ed642486090313cd6b144d44d514b7962322849fa6c0efe4a
+          image: 172.30.223.20:5000/labs-ci-cd/"${NAME}"@sha256:43f439578deefa7ed642486090313cd6b144d44d514b7962322849fa6c0efe4a
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -124,7 +154,7 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 3
-          name: openshift-sonarqube
+          name: "${NAME}"
           ports:
           - containerPort: 9000
             protocol: TCP
@@ -153,10 +183,10 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - openshift-sonarqube
+        - "${NAME}"
         from:
           kind: ImageStreamTag
-          name: openshift-sonarqube:latest
+          name: "${NAME}":latest
           namespace: labs-ci-cd
       type: ImageChange
   status:
@@ -167,6 +197,12 @@ objects:
     unavailableReplicas: 0
     updatedReplicas: 0
 parameters:
+- name: NAME
+  description: The name assigned to all objects and the resulting imagestream
+  value: sonarqube
+- name: SONARQUBE_WEB_JVM_OPTS
+  description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
+  value:
 - name: SONARQUBE_WEB_JVM_OPTS
   description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
   value:
@@ -189,7 +225,7 @@ parameters:
   description: LDAP URL for authentication (leave blank for local authentication)
   value:
 - name: SONARQUBE_LDAP_REALM
-  description: A realm defines the namespace from which the authentication entity is selected (See: https://docs.oracle.com/javase/jndi/tutorial/ldap/security/digest.html)
+  description: LDAP Realm
   value:
 - name: SONARQUBE_LDAP_CONTEXTFACTORY
   description: JNDI ContextFactory class to be used
@@ -235,9 +271,9 @@ parameters:
   value: "true"
 - name: GITHUB_SECRET
   description: Generated secret key for GitHub webhooks
-  from: [A-Za-z0-9_+=]{36}
+  from: "[A-Za-z0-9]{36}"
   generate: expression
 - name: GENERIC_SECRET
   description: Generated secret key for generic webhooks
-  from: [A-Za-z0-9_+=]{36}
+  from: "[A-Za-z0-9]{36}"
   generate: expression
