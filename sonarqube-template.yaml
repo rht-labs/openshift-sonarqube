@@ -4,52 +4,126 @@ metadata:
   creationTimestamp: null
   name: sonarqube
 objects:
+#- apiVersion: v1
+#  kind: Route
+#  metadata:
+#    annotations:
+#      openshift.io/host.generated: "true"
+#    creationTimestamp: null
+#    labels:
+#      appName: sonarqube
+#    name: openshift-sonarqube
+#  spec:
+#    host: openshift-sonarqube.apps.${DEFAULT_DOMAIN}
+#    port:
+#      targetPort: 9000-tcp
+#    to:
+#      kind: Service
+#      name: openshift-sonarqube
+#      weight: 100
+#    wildcardPolicy: None
+#  status:
+#    ingress:
+#    - conditions:
+#      - lastTransitionTime: 2017-05-16T21:27:33Z
+#        status: "True"
+#        type: Admitted
+#      host: openshift-sonarqube.apps.${DEFAULT_DOMAIN}
+#      routerName: router
+#      wildcardPolicy: None
 - apiVersion: v1
   kind: ImageStream
   metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
     labels:
-      name: "${NAME}"
-    name: "${NAME}"
+      app: openshift-sonarqube
+      appName: sonarqube
+    name: openshift-sonarqube
   spec:
     tags:
-      - annotations:
-          "openshift.io/imported-from": "sonarqube:latest"
-        from:
-          kind: DockerImage
-          name: "sonarqube:image"
-        importPolicy:
-        name: "latest"
-        referencePolicy:
-          type: Source
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: openshift-sonarqube:latest
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/image.dockerRepositoryCheck: 2017-05-16T18:29:00Z
+    creationTimestamp: null
+    generation: 2
+    labels:
+      app: sonarqube
+      appName: sonarqube
+    name: sonarqube
+  spec:
+    tags:
+    - annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+        openshift.io/imported-from: sonarqube:latest
+      from:
+        kind: DockerImage
+        name: sonarqube:latest
+      generation: 2
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: ""
 - apiVersion: v1
   kind: Service
   metadata:
-    name: "${NAME}"
-    annotations:
-      description: "Exposes and load balances the application pods"
+    creationTimestamp: null
+    labels:
+      app: openshift-sonarqube
+      appName: sonarqube
+    name: openshift-sonarqube
   spec:
     ports:
-      - name: "web"
-        port: 80
-        targetPort: 9000
+    - name: 9000-tcp
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
     selector:
-      name: "${NAME}"
+      app: openshift-sonarqube
+      deploymentconfig: openshift-sonarqube
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
 - apiVersion: v1
   kind: BuildConfig
   metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
     creationTimestamp: null
     labels:
-      app: "${NAME}"
-      name: "${NAME}"
-    name: "${NAME}"
+      app: openshift-sonarqube
+      appName: sonarqube
+    name: openshift-sonarqube
   spec:
+    nodeSelector: null
     output:
       to:
         kind: ImageStreamTag
-        name: "${NAME}":latest
+        name: openshift-sonarqube:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
     source:
       git:
-        uri: https://github.com/InfoSec812/"${NAME}".git
+        uri: https://github.com/InfoSec812/openshift-sonarqube.git
       type: Git
     strategy:
       dockerStrategy:
@@ -59,27 +133,64 @@ objects:
       type: Docker
     triggers:
     - github:
-        secret: ${GITHUB_SECRET}
+        secret: tu5UyJNNhAyxXYrcnDTZ
       type: GitHub
     - generic:
-        secret: ${GENERIC_SECRET}
+        secret: xhUU0WVDG3eA2Yu89zGe
       type: Generic
     - type: ConfigChange
-    - type: ImageChange
-      imageChange: {}
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: openshift-sonarqube
+      openshift.io/build.number: "1"
+      openshift.io/build.pod-name: openshift-sonarqube-1-build
+    creationTimestamp: null
+    labels:
+      app: openshift-sonarqube
+      appName: openshift-sonarqube
+      buildconfig: openshift-sonarqube
+      openshift.io/build-config.name: openshift-sonarqube
+      openshift.io/build.start-policy: Serial
+    name: openshift-sonarqube-1
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: openshift-sonarqube:latest
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        uri: https://github.com/InfoSec812/openshift-sonarqube.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: DockerImage
+          name: sonarqube@sha256:b80742f49d3a9e7a72c99a2fe7c971ddf06a414681b285994b197041a25566ad
+      type: Docker
+    phase: New
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     labels:
-      app: "${NAME}"
+      app: openshift-sonarqube
       appName: sonarqube
-      name: "${NAME}"
-    name: "${NAME}"
+      name: openshift-sonarqube
+    name: openshift-sonarqube
   spec:
     replicas: 1
     selector:
-      app: "${NAME}"
-      deploymentconfig: "${NAME}"
+      app: openshift-sonarqube
+      deploymentconfig: openshift-sonarqube
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -93,8 +204,8 @@ objects:
     template:
       metadata:
         labels:
-          app: "${NAME}"
-          deploymentconfig: "${NAME}"
+          app: openshift-sonarqube
+          deploymentconfig: openshift-sonarqube
       spec:
         containers:
         - env:
@@ -142,7 +253,6 @@ objects:
             value: ${SONARQUBE_BUILDBREAKER_THRESHOLD}
           - name: SONAR_BUILDBREAKER_DISABLE
             value: ${SONAR_BUILDBREAKER_DISABLE}
-          image: 172.30.223.20:5000/labs-ci-cd/"${NAME}"@sha256:43f439578deefa7ed642486090313cd6b144d44d514b7962322849fa6c0efe4a
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -154,7 +264,7 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 3
-          name: "${NAME}"
+          name: openshift-sonarqube
           ports:
           - containerPort: 9000
             protocol: TCP
@@ -183,11 +293,10 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - "${NAME}"
+        - openshift-sonarqube
         from:
           kind: ImageStreamTag
-          name: "${NAME}":latest
-          namespace: labs-ci-cd
+          name: openshift-sonarqube:latest
       type: ImageChange
   status:
     availableReplicas: 0
@@ -197,9 +306,9 @@ objects:
     unavailableReplicas: 0
     updatedReplicas: 0
 parameters:
-- name: NAME
+- name: DEFAULT_DOMAIN
   description: The name assigned to all objects and the resulting imagestream
-  value: sonarqube
+  value: 
 - name: SONARQUBE_WEB_JVM_OPTS
   description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
   value:
