@@ -25,5 +25,8 @@ exec java -jar lib/sonar-application-$SONAR_VERSION.jar \
   -Dldap.group.baseDn="$SONARQUBE_LDAP_GROUP_BASEDN" \
   -Dldap.group.request="$SONARQUBE_LDAP_GROUP_REQUEST" \
   -Dldap.group.idAttribute="$SONARQUBE_LDAP_GROUP_ID_ATTR" \
+  -Dsonar.buildbreaker.queryMaxAttempts=$SONARQUBE_BUILDBREAKER_MAX_ATTEMPTS \
+  -Dsonar.buildbreaker.queryInterval=$SONARQUBE_BUILDBREAKER_INTERVAL \
+  -Dsonar.buildbreaker.preview.issuesSeverity=$SONARQUBE_BUILDBREAKER_THRESHOLD \
   -Dsonar.web.javaAdditionalOpts="$SONARQUBE_WEB_JVM_OPTS -Djava.security.egd=file:/dev/./urandom" \
   "$@"
