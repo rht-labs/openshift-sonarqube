@@ -7,4 +7,5 @@ RUN curl -L -o extensions/plugins/sonar-github-plugin.jar https://sonarsource.bi
 RUN curl -L -o extensions/plugins/sonar-findbugs-plugin.jar https://github.com/SonarQubeCommunity/sonar-findbugs/releases/download/3.4.4/sonar-findbugs-plugin-3.4.4.jar
 RUN curl -L -o extensions/plugins/sonar-pmd-plugin.jar https://github.com/SonarQubeCommunity/sonar-pmd/releases/download/2.6/sonar-pmd-plugin-2.6.jar
 RUN curl -L -o extensions/plugins/sonar-gitlab-plugin.jar https://github.com/gabrie-allaigre/sonar-gitlab-plugin/releases/download/2.0.1/sonar-gitlab-plugin-2.0.1.jar
+RUN curl -L -o extensions/plugins/sonar-buildbreaker-plugin.jar https://github.com/SonarQubeCommunity/sonar-build-breaker/releases/download/2.2/sonar-build-breaker-plugin-2.2.jar
 ADD run.sh /opt/sonarqube/bin/run/sh
