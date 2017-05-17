@@ -8,8 +8,8 @@ if ! [[ "$(ls -A /opt/sonarqube/data)" ]]; then
 fi
 
 ## If the mounted extensions volume is empty, populate it from the default data
-if ! [[ "$(ls -A /opt/sonarqube/data/plugins)" ]]; then
-	cp -a /opt/sonarqube/extensions-init /opt/sonarqube/data/plugins
+if ! [[ -d /opt/sonarqube/data/plugins ]]; then
+	cp -a /opt/sonarqube/extensions-init/plugins /opt/sonarqube/data/plugins
 fi
 
 rm -rf /opt/sonarqube/extensions/plugins
