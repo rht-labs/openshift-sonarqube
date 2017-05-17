@@ -1,7 +1,6 @@
 FROM sonarqube:latest
 MAINTAINER Deven Phillips <deven.phillips@redhat.com>
 
-RUN chgrp -R 0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
 RUN curl -L -o extensions/plugins/sonar-ldap-plugin.jar https://sonarsource.bintray.com/Distribution/sonar-ldap-plugin/sonar-ldap-plugin-2.1.0.507.jar
 RUN curl -L -o extensions/plugins/sonar-github-plugin.jar https://sonarsource.bintray.com/Distribution/sonar-github-plugin/sonar-github-plugin-1.4.1.822.jar
 RUN curl -L -o extensions/plugins/sonar-findbugs-plugin.jar https://github.com/SonarQubeCommunity/sonar-findbugs/releases/download/3.4.4/sonar-findbugs-plugin-3.4.4.jar
@@ -10,4 +9,5 @@ RUN curl -L -o extensions/plugins/sonar-gitlab-plugin.jar https://github.com/gab
 RUN curl -L -o extensions/plugins/sonar-buildbreaker-plugin.jar https://github.com/SonarQubeCommunity/sonar-build-breaker/releases/download/2.2/sonar-build-breaker-plugin-2.2.jar
 RUN cp -a /opt/sonarqube/data /opt/sonarqube/data-init
 RUN cp -a /opt/sonarqube/extensions /opt/sonarqube/extensions-init
+RUN chgrp -R 0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
 ADD run.sh /opt/sonarqube/bin/run/sh
