@@ -2,6 +2,16 @@
 
 set -e
 
+## If the mounted extensions volume is empty, populate it from the default data
+if [[ "$(ls -A /opt/sonarqube/extensions)" ]]; then
+	cp -a /opt/sonarqube/extensions-init /opt/sonarqube/extensions
+fi
+
+## If the mounted data volume is empty, populate it from the default data
+if [[ "$(ls -A /opt/sonarqube/data)" ]]; then
+	cp -a /opt/sonarqube/data-init /opt/sonarqube/data
+fi
+
 if [ "${1:0:1}" != '-' ]; then
   exec "$@"
 fi
