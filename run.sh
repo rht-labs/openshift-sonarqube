@@ -16,6 +16,8 @@ if [ "${1:0:1}" != '-' ]; then
   exec "$@"
 fi
 
+chgrp -R 0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
+
 exec java -jar lib/sonar-application-$SONAR_VERSION.jar \
   -Dsonar.log.console=true \
   -Dsonar.jdbc.username="$SONARQUBE_JDBC_USERNAME" \

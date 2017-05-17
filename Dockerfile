@@ -10,4 +10,4 @@ RUN curl -L -o extensions/plugins/sonar-buildbreaker-plugin.jar https://github.c
 RUN cp -a /opt/sonarqube/data /opt/sonarqube/data-init
 RUN cp -a /opt/sonarqube/extensions /opt/sonarqube/extensions-init
 RUN chgrp -R 0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
-ADD run.sh /opt/sonarqube/bin/run/sh
+ADD run.sh /opt/sonarqube/bin/run.sh
