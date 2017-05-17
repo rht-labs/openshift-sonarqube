@@ -9,5 +9,5 @@ RUN curl -L -o extensions/plugins/sonar-gitlab-plugin.jar https://github.com/gab
 RUN curl -L -o extensions/plugins/sonar-buildbreaker-plugin.jar https://github.com/SonarQubeCommunity/sonar-build-breaker/releases/download/2.2/sonar-build-breaker-plugin-2.2.jar
 RUN cp -a /opt/sonarqube/data /opt/sonarqube/data-init
 RUN cp -a /opt/sonarqube/extensions /opt/sonarqube/extensions-init
-RUN chgrp -R 0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
+RUN chown 65534:0 /opt/sonarqube && chmod -R gu+rwX /opt/sonarqube
 ADD run.sh /opt/sonarqube/bin/run.sh
