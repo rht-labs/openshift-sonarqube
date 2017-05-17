@@ -4,33 +4,23 @@ metadata:
   creationTimestamp: null
   name: sonarqube
 objects:
-#- apiVersion: v1
-#  kind: Route
-#  metadata:
-#    annotations:
-#      openshift.io/host.generated: "true"
-#    creationTimestamp: null
-#    labels:
-#      appName: sonarqube
-#    name: openshift-sonarqube
-#  spec:
-#    host: openshift-sonarqube.apps.${DEFAULT_DOMAIN}
-#    port:
-#      targetPort: 9000-tcp
-#    to:
-#      kind: Service
-#      name: openshift-sonarqube
-#      weight: 100
-#    wildcardPolicy: None
-#  status:
-#    ingress:
-#    - conditions:
-#      - lastTransitionTime: 2017-05-16T21:27:33Z
-#        status: "True"
-#        type: Admitted
-#      host: openshift-sonarqube.apps.${DEFAULT_DOMAIN}
-#      routerName: router
-#      wildcardPolicy: None
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    labels:
+      appName: sonarqube
+    name: openshift-sonarqube
+  spec:
+    port:
+      targetPort: 9000-tcp
+    to:
+      kind: Service
+      name: openshift-sonarqube
+      weight: 100
+    wildcardPolicy: None
 - apiVersion: v1
   kind: ImageStream
   metadata:
@@ -144,41 +134,6 @@ objects:
   status:
     lastVersion: 0
 - apiVersion: v1
-  kind: Build
-  metadata:
-    annotations:
-      openshift.io/build-config.name: openshift-sonarqube
-      openshift.io/build.number: "1"
-      openshift.io/build.pod-name: openshift-sonarqube-1-build
-    creationTimestamp: null
-    labels:
-      app: openshift-sonarqube
-      appName: openshift-sonarqube
-      buildconfig: openshift-sonarqube
-      openshift.io/build-config.name: openshift-sonarqube
-      openshift.io/build.start-policy: Serial
-    name: openshift-sonarqube-1
-  spec:
-    nodeSelector: null
-    output:
-      to:
-        kind: ImageStreamTag
-        name: openshift-sonarqube:latest
-    postCommit: {}
-    resources: {}
-    serviceAccount: builder
-    source:
-      git:
-        uri: https://github.com/InfoSec812/openshift-sonarqube.git
-      type: Git
-    strategy:
-      dockerStrategy:
-        from:
-          kind: DockerImage
-          name: sonarqube@sha256:b80742f49d3a9e7a72c99a2fe7c971ddf06a414681b285994b197041a25566ad
-      type: Docker
-    phase: New
-- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     labels:
@@ -271,10 +226,10 @@ objects:
           resources:
             limits:
               cpu: "2"
-              memory: 4Gi
+              memory: 2Gi
             requests:
               cpu: 500m
-              memory: 2Gi
+              memory: 1Gi
           terminationMessagePath: /dev/termination-log
           volumeMounts:
           - mountPath: /opt/sonarqube/data
