@@ -3,13 +3,23 @@
 set -e
 
 ## If the mounted data volume is empty, populate it from the default data
+## The plugins.txt file lists plugins which should be installed.
 if ! [[ "$(ls -A /opt/sonarqube/data)" ]]; then
-	cp -a /opt/sonarqube/data-init /opt/sonarqube/data
+    cp -a /opt/sonarqube/data-init /opt/sonarqube/data
 fi
 
 ## If the mounted extensions volume is empty, populate it from the default data
 if ! [[ -d /opt/sonarqube/data/plugins ]]; then
 	cp -a /opt/sonarqube/extensions-init/plugins /opt/sonarqube/data/plugins
+	curl -s https://update.sonarsource.org/update-center.properties | grep downloadUrl > /tmp/pluginList.txt
+	printf "Downloading additional plugins\n"
+    for PLUGIN in $(echo $PLUGIN_LIST)
+    do
+        printf "\t${PLUGIN}..."
+        DOWNLOAD_URL=$(cat /tmp/pluginList.txt | grep ${PLUGIN} | sort -V | tail -n 1 | awk -F"=" '{print $2}' | sed 's@\\:@:@g')
+        curl -Ls -o /opt/sonarqube/data/plugins/${PLUGIN}.jar ${DOWNLOAD_URL}
+        printf "\n"
+    done
 fi
 
 rm -rf /opt/sonarqube/extensions/plugins
@@ -19,7 +29,7 @@ if [ "${1:0:1}" != '-' ]; then
   exec "$@"
 fi
 
-chgrp -R 0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
+chown -R 0:65534 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
 
 exec java -jar lib/sonar-application-$SONAR_VERSION.jar \
   -Dsonar.log.console=true \
