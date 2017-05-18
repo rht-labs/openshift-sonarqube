@@ -13,7 +13,7 @@ if ! [[ -d /opt/sonarqube/data/plugins ]]; then
 	cp -a /opt/sonarqube/extensions-init/plugins /opt/sonarqube/data/plugins
 	curl -s https://update.sonarsource.org/update-center.properties | grep downloadUrl > /tmp/pluginList.txt
 	printf "Downloading additional plugins\n"
-    for PLUGIN in $(echo $PLUGIN_LIST)
+    for PLUGIN in $(echo $SONAR_PLUGIN_LIST)
     do
         printf "\t${PLUGIN}..."
         DOWNLOAD_URL=$(cat /tmp/pluginList.txt | grep ${PLUGIN} | sort -V | tail -n 1 | awk -F"=" '{print $2}' | sed 's@\\:@:@g')

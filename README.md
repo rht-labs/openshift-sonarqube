@@ -10,6 +10,9 @@ plugins will only be automatically installed on the first run with a new volume.
 configurable. You can provide no environment variables for configuration and the container will run with the built-in
 H2 DB and local authentication, but you can pass in configuration properties as listed below to customize the runtime.
 
+## Plugin Installation
+When the container is run, the environment variable "SONAR_PLUGIN_LIST" should contain a space separated list of 
+plugins which should be installed on the container's first startup.
 
 ## Configuration
 Some configuration settings are well defined, but you can always pass additional configuration using the catchall
