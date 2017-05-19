@@ -22,69 +22,69 @@ variable like `SONARQUBE_WEB_JVM_OPTS="-Dsonar.auth.google.allowUsersToSignUp=fa
 
 ### Pre-defined Configuration Variables
 
-* Variable: SONARQUBE_WEB_JVM_OPTS
+* Variable: **SONARQUBE_WEB_JVM_OPTS**
   * Description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
   * Default Value:
-* Variable: SONARQUBE_JDBC_USERNAME
+* Variable: **SONARQUBE_JDBC_USERNAME**
   * Description: Username used for SonarQube database authentication (leave blank to use ephemeral database)
   * Default Value:
-* Variable: SONARQUBE_JDBC_PASSWORD
+* Variable: **SONARQUBE_JDBC_PASSWORD**
   * Description: Password used for SonarQube database authentication (leave blank to use ephemeral database)
   * Default Value:
-* Variable: SONARQUBE_JDBC_URL
+* Variable: **SONARQUBE_JDBC_URL**
   * Description: Password used for SonarQube database authentication (leave blank to use ephemeral database)
   * Default Value:
-* Variable: SONARQUBE_LDAP_BINDDN
+* Variable: **SONARQUBE_LDAP_BINDDN**
   * Description: Bind DN for LDAP authentication (leave blank for local authentication)
   * Default Value:
-* Variable: SONARQUBE_LDAP_BINDPASSWD
+* Variable: **SONARQUBE_LDAP_BINDPASSWD**
   * Description: Bind password for LDAP authentication (leave blank for local authentication)
   * Default Value:
-* Variable: SONARQUBE_LDAP_URL
+* Variable: **SONARQUBE_LDAP_URL**
   * Description: LDAP URL for authentication (leave blank for local authentication)
   * Default Value:
-* Variable: SONARQUBE_LDAP_REALM
+* Variable: **SONARQUBE_LDAP_REALM**
   * Description: LDAP Realm
   * Default Value:
-* Variable: SONARQUBE_LDAP_CONTEXTFACTORY
+* Variable: **SONARQUBE_LDAP_CONTEXTFACTORY**
   * Description: JNDI ContextFactory class to be used
   * Default Value: com.sun.jndi.ldap.LdapCtxFactory
-* Variable: SONARQUBE_LDAP_STARTTLS
+* Variable: **SONARQUBE_LDAP_STARTTLS**
   * Description: Enable StartTLS for the LDAP connection
   * Default Value: "false"
-* Variable: SONARQUBE_LDAP_AUTHENTICATION
+* Variable: **SONARQUBE_LDAP_AUTHENTICATION**
   * Description:  LDAP authentication method (simple | CRAM-MD5 | DIGEST-MD5 | GSSAPI)
   * Default Value: simple
-* Variable: SONARQUBE_LDAP_USER_BASEDN
+* Variable: **SONARQUBE_LDAP_USER_BASEDN**
   * Description: LDAP BaseDN under which to search for user objects
   * Default Value:
-* Variable: SONARQUBE_LDAP_USER_REQUEST
+* Variable: **SONARQUBE_LDAP_USER_REQUEST**
   * Description: LDAP filter to select user objects
   * Default Value: (&(objectClass=inetOrgPerson)(uid={login}))
-* Variable: SONARQUBE_LDAP_USER_REAL_NAME_ATTR
+* Variable: **SONARQUBE_LDAP_USER_REAL_NAME_ATTR**
   * Description: LDAP attribute which holds the user's full name
   * Default Value: cn
-* Variable: SONARQUBE_LDAP_USER_EMAIL_ATTR
+* Variable: **SONARQUBE_LDAP_USER_EMAIL_ATTR**
   * Description: LDAP attribute which holds the user's e-mail address
   * Default Value: mail
-* Variable: SONARQUBE_LDAP_GROUP_BASEDN
+* Variable: **SONARQUBE_LDAP_GROUP_BASEDN**
   * Description: LDAP BaseDN under which to search for group objects
   * Default Value:
-* Variable: SONARQUBE_LDAP_GROUP_REQUEST
+* Variable: **SONARQUBE_LDAP_GROUP_REQUEST**
   * Description: LDAP filter to select group objects
   * Default Value: (&(objectClass=groupOfUniqueNames)(uniqueMember={dn}))
-* Variable: SONARQUBE_LDAP_GROUP_ID_ATTR
+* Variable: **SONARQUBE_LDAP_GROUP_ID_ATTR**
   * Description: LDAP attribute which holds the group's ID
   * Default Value: cn
-* Variable: SONARQUBE_BUILDBREAKER_MAX_ATTEMPTS
+* Variable: **SONARQUBE_BUILDBREAKER_MAX_ATTEMPTS**
   * Description: Build Break plugin - Max number of poll attempts
   * Default Value: "30"
-* Variable: SONARQUBE_BUILDBREAKER_INTERVAL
+* Variable: **SONARQUBE_BUILDBREAKER_INTERVAL**
   * Description: Build Breaker plugin - Interval to wait between poll requests
   * Default Value: "20000"
-* Variable: SONARQUBE_BUILDBREAKER_THRESHOLD
+* Variable: **SONARQUBE_BUILDBREAKER_THRESHOLD**
   * Description: Build Breaker plugin - Threshold at which a build will instantly break
   * Default Value: "CRITICAL"
-* Variable: SONAR_BUILDBREAKER_DISABLE
+* Variable: **SONAR_BUILDBREAKER_DISABLE**
   * Description: Build Breaker plugin - Disable the build breaker plugin for all builds
   * Default Value: "true"
