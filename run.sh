@@ -15,10 +15,17 @@ if ! [[ -d /opt/sonarqube/data/plugins ]]; then
 	printf "Downloading additional plugins\n"
     for PLUGIN in $(echo $SONAR_PLUGIN_LIST)
     do
-        printf "\t${PLUGIN}..."
         DOWNLOAD_URL=$(cat /tmp/pluginList.txt | grep ${PLUGIN} | sort -V | tail -n 1 | awk -F"=" '{print $2}' | sed 's@\\:@:@g')
-        curl -Ls -o /opt/sonarqube/data/plugins/${PLUGIN}.jar ${DOWNLOAD_URL}
-        printf "\n"
+
+        ## Check to see if plugin exists, attempt to download the plugin if it does exist.
+        if ! [[ -z "${DOWNLOAD_URL}" ]]; then
+            printf "    %-15s" ${PLUGIN}
+            curl -Ls -o /opt/sonarqube/data/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} >> /dev/null 2>&1 && printf "%10s" "DONE" || printf "%10s" "FAILED"
+            printf "\n"
+        else
+            ## Plugin was not found in the plugin inventory
+            printf "    %-15s%10s\n" "${PLUGIN}" "NOT FOUND"
+        fi
     done
 fi
 
