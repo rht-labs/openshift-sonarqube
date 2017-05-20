@@ -130,6 +130,8 @@ objects:
         from:
           kind: ImageStreamTag
           name: sonarqube:latest
+        env:
+
       type: Docker
     triggers:
     - github:

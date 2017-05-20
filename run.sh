@@ -3,7 +3,6 @@
 set -e
 
 ## If the mounted data volume is empty, populate it from the default data
-## The plugins.txt file lists plugins which should be installed.
 if ! [[ "$(ls -A /opt/sonarqube/data)" ]]; then
     cp -a /opt/sonarqube/data-init /opt/sonarqube/data
 fi
@@ -11,24 +10,9 @@ fi
 ## If the mounted extensions volume is empty, populate it from the default data
 if ! [[ -d /opt/sonarqube/data/plugins ]]; then
 	cp -a /opt/sonarqube/extensions-init/plugins /opt/sonarqube/data/plugins
-	curl -s https://update.sonarsource.org/update-center.properties | grep downloadUrl > /tmp/pluginList.txt
-	printf "Downloading additional plugins\n"
-    for PLUGIN in $(echo $SONAR_PLUGIN_LIST)
-    do
-        DOWNLOAD_URL=$(cat /tmp/pluginList.txt | grep ${PLUGIN} | sort -V | tail -n 1 | awk -F"=" '{print $2}' | sed 's@\\:@:@g')
-
-        ## Check to see if plugin exists, attempt to download the plugin if it does exist.
-        if ! [[ -z "${DOWNLOAD_URL}" ]]; then
-            printf "    %-15s" ${PLUGIN}
-            curl -Ls -o /opt/sonarqube/data/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} >> /dev/null 2>&1 && printf "%10s" "DONE" || printf "%10s" "FAILED"
-            printf "\n"
-        else
-            ## Plugin was not found in the plugin inventory
-            printf "    %-15s%10s\n" "${PLUGIN}" "NOT FOUND"
-        fi
-    done
 fi
 
+## Link the plugins directory from the mounted volume
 rm -rf /opt/sonarqube/extensions/plugins
 ln -s /opt/sonarqube/data/plugins /opt/sonarqube/extensions/plugins
 
