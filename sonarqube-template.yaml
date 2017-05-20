@@ -5,6 +5,16 @@ metadata:
   name: sonarqube
 objects:
 - apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: sonar-config
+  spec:
+    accessModes:
+      - ReadWriteMany
+    resources:
+      requests:
+        storage: ${VOLUME_CAPACITY}
+- apiVersion: v1
   kind: Route
   metadata:
     annotations:
@@ -164,6 +174,8 @@ objects:
       spec:
         containers:
         - env:
+          - name: SONAR_PLUGIN_LIST
+            value: ${SONAR_PLUGIN_LIST}
           - name: SONARQUBE_WEB_JVM_OPTS
             value: ${SONARQUBE_WEB_JVM_OPTS}
           - name: SONARQUBE_JDBC_USERNAME
@@ -261,9 +273,12 @@ objects:
     unavailableReplicas: 0
     updatedReplicas: 0
 parameters:
-- name: DEFAULT_DOMAIN
-  description: The name assigned to all objects and the resulting imagestream
-  value: 
+- name: SONAR_PLUGIN_LIST
+  description: A space separated list of plugins to be installed (See: https://goo.gl/I9E4hL)
+  value: findbugs pmd ldap buildbreaker github gitlab
+- name: VOLUME_CAPACITY
+  description: The size of the Persistent Volume Claim to provision for SonarQube
+  value: 10Gi
 - name: SONARQUBE_WEB_JVM_OPTS
   description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
   value:
