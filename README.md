@@ -22,7 +22,7 @@ variable like `SONARQUBE_WEB_JVM_OPTS="-Dsonar.auth.google.allowUsersToSignUp=fa
 
 ### Pre-defined Configuration Variables
 
-* Variable: **SONAR_PLUGIN_LIST**
+* Variable: **SONAR_PLUGINS_LIST**
   * Description: A space separated list of plugins to be installed (See: https://goo.gl/I9E4hL)
   * Default Value: findbugs pmd ldap buildbreaker github gitlab
 * Variable: **SONARQUBE_WEB_JVM_OPTS**
