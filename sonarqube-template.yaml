@@ -131,7 +131,8 @@ objects:
           kind: ImageStreamTag
           name: sonarqube:latest
         env:
-
+          name: SONAR_PLUGINS_LIST
+          value: ${SONAR_PLUGINS_LIST}
       type: Docker
     triggers:
     - github:
@@ -275,7 +276,7 @@ objects:
     unavailableReplicas: 0
     updatedReplicas: 0
 parameters:
-- name: SONAR_PLUGIN_LIST
+- name: SONAR_PLUGINS_LIST
   description: A space separated list of plugins to be installed (See: https://goo.gl/I9E4hL)
   value: findbugs pmd ldap buildbreaker github gitlab
 - name: VOLUME_CAPACITY
