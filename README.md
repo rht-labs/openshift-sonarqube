@@ -11,8 +11,8 @@ configurable. You can provide no environment variables for configuration and the
 H2 DB and local authentication, but you can pass in configuration properties as listed below to customize the runtime.
 
 ## Plugin Installation
-When the container is run, the environment variable "SONAR_PLUGIN_LIST" should contain a space separated list of 
-plugins which should be installed on the container's first startup.
+When the container image is built, the environment variable "SONAR_PLUGINS_LIST" should contain a space separated list 
+of plugins which should be installed. More plugins can always be installed later as well.
 
 ## Configuration
 Some configuration settings are well defined, but you can always pass additional configuration using the catchall
