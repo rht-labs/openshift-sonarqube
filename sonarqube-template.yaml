@@ -7,7 +7,7 @@ objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: sonar-config
+    name: openshift-sonarqube
   spec:
     accessModes:
       - ReadWriteMany
@@ -124,6 +124,7 @@ objects:
     source:
       git:
         uri: https://github.com/InfoSec812/openshift-sonarqube.git
+        ref: build-with-plugins
       type: Git
     strategy:
       dockerStrategy:
@@ -131,8 +132,8 @@ objects:
           kind: ImageStreamTag
           name: sonarqube:latest
         env:
-          name: SONAR_PLUGINS_LIST
-          value: ${SONAR_PLUGINS_LIST}
+          - name: SONAR_PLUGINS_LIST
+            value: ${SONAR_PLUGINS_LIST}
       type: Docker
     triggers:
     - github:
@@ -248,15 +249,15 @@ objects:
           terminationMessagePath: /dev/termination-log
           volumeMounts:
           - mountPath: /opt/sonarqube/data
-            name: sonar-config
+            name: openshift-sonarqube
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
         terminationGracePeriodSeconds: 30
         volumes:
-        - name: sonar-config
+        - name: openshift-sonarqube
           persistentVolumeClaim:
-            claimName: sonar-config
+            claimName: openshift-sonarqube
     test: false
     triggers:
     - type: ConfigChange
@@ -277,7 +278,7 @@ objects:
     updatedReplicas: 0
 parameters:
 - name: SONAR_PLUGINS_LIST
-  description: A space separated list of plugins to be installed (See: https://goo.gl/I9E4hL)
+  description: Space separated list of plugins
   value: findbugs pmd ldap buildbreaker github gitlab
 - name: VOLUME_CAPACITY
   description: The size of the Persistent Volume Claim to provision for SonarQube
