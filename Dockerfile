@@ -8,6 +8,7 @@ RUN chown 65534:0 /opt/sonarqube && chmod -R gu+rwX /opt/sonarqube
 ADD plugins.sh /opt/sonarqube/bin/plugins.sh
 ADD run.sh /opt/sonarqube/bin/run.sh
 CMD /opt/sonarqube/bin/run.sh
-ARG SONAR_PLUGINS_LIST=local
-ENV SONAR_PLUGINS_LIST ${SONAR_PLUGINS_LIST}
-RUN /opt/sonarqube/bin/plugins.sh ${SONAR_PLUGINS_LIST}
+ARG SONAR_PLUGINS_LIST
+ENV SONAR_PLUGINS_LIST 'findbugs pmd buildbreaker gitlab github ldap'
+RUN echo $SONAR_PLUGINS_LIST
+RUN /opt/sonarqube/bin/plugins.sh $SONAR_PLUGINS_LIST
