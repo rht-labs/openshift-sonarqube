@@ -1,6 +1,7 @@
 FROM sonarqube:latest
 MAINTAINER Deven Phillips <deven.phillips@redhat.com>
 
+ADD sonar.properties /opt/sonarqube/conf/sonar.properties
 RUN cp -a /opt/sonarqube/data /opt/sonarqube/data-init
 RUN cp -a /opt/sonarqube/extensions /opt/sonarqube/extensions-init
 RUN chown 65534:0 /opt/sonarqube && chmod -R gu+rwX /opt/sonarqube
