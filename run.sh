@@ -22,6 +22,8 @@ fi
 
 #chown -R 0:0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
 
+set
+
 java -jar lib/sonar-application-$SONAR_VERSION.jar \
     -Dsonar.web.javaAdditionalOpts="${env:SONARQUBE_WEB_JVM_OPTS} -Djava.security.egd=file:/dev/./urandom" \
     "$@"
