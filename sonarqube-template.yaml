@@ -25,9 +25,16 @@ objects:
       requests:
         storage: ${SONAR_DB_VOLUME_CAPACITY}
 - apiVersion: v1
+  kind: Secret
+  metadata:
+    name: postgresql
+  stringData:
+    database-user: ${POSTGRESQL_USER}
+    database-password: ${POSTGRESQL_PASSWORD}
+- apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    creationTimestamp: 2017-05-23T14:57:09Z
+    creationTimestamp: null
     generation: 2
     labels:
       app: postgresql-persistent
@@ -65,7 +72,7 @@ objects:
                 name: postgresql
           - name: POSTGRESQL_DATABASE
             value: sonar
-          image: centos/postgresql-95-centos7@sha256:90900f49fd0610bf9a2d6da02a1bd5773ea412ed4c56d49b390595838b5a1431
+          image: 'centos/postgresql-95-centos7@sha256:90900f49fd0610bf9a2d6da02a1bd5773ea412ed4c56d49b390595838b5a1431'
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -119,7 +126,7 @@ objects:
         - postgresql
         from:
           kind: ImageStreamTag
-          name: postgresql:9.5
+          name: 'postgresql:9.5'
           namespace: openshift
     - type: ConfigChange
 - apiVersion: v1
@@ -176,7 +183,7 @@ objects:
     - annotations: null
       from:
         kind: DockerImage
-        name: openshift-sonarqube:latest
+        name: 'openshift-sonarqube:latest'
       generation: null
       importPolicy: {}
       name: latest
@@ -188,7 +195,6 @@ objects:
   kind: ImageStream
   metadata:
     annotations:
-      openshift.io/image.dockerRepositoryCheck: 2017-05-16T18:29:00Z
     creationTimestamp: null
     generation: 2
     labels:
@@ -199,10 +205,10 @@ objects:
     tags:
     - annotations:
         openshift.io/generated-by: OpenShiftWebConsole
-        openshift.io/imported-from: sonarqube:latest
+        openshift.io/imported-from: 'sonarqube:latest'
       from:
         kind: DockerImage
-        name: sonarqube:latest
+        name: 'sonarqube:latest'
       generation: 2
       importPolicy: {}
       name: latest
@@ -248,20 +254,20 @@ objects:
     output:
       to:
         kind: ImageStreamTag
-        name: openshift-sonarqube:latest
+        name: 'openshift-sonarqube:latest'
     postCommit: {}
     resources: {}
     runPolicy: Serial
     source:
       git:
-        uri: https://github.com/InfoSec812/openshift-sonarqube.git
-        ref: build-with-plugins
+        uri: 'https://github.com/InfoSec812/openshift-sonarqube.git'
+        ref: include-postgresql
       type: Git
     strategy:
       dockerStrategy:
         from:
           kind: ImageStreamTag
-          name: sonarqube:latest
+          name: 'sonarqube:latest'
         env:
           - name: SONAR_PLUGINS_LIST
             value: ${SONAR_PLUGINS_LIST}
@@ -313,9 +319,9 @@ objects:
             value: ${SONAR_PLUGIN_LIST}
           - name: SONARQUBE_WEB_JVM_OPTS
             value: ${SONARQUBE_WEB_JVM_OPTS}
-          - name: POSTGRESQL_USER
+          - name: SONAR_JDBC_USERNAME
             value: ${POSTGRESQL_USER}
-          - name: POSTGRESQL_PASSWORD
+          - name: SONAR_JDBC_PASSWORD
             value: ${POSTGRESQL_PASSWORD}
           - name: SONARQUBE_JDBC_URL
             value: ${SONARQUBE_JDBC_URL}
@@ -399,7 +405,7 @@ objects:
         - openshift-sonarqube
         from:
           kind: ImageStreamTag
-          name: openshift-sonarqube:latest
+          name: 'openshift-sonarqube:latest'
   status:
     availableReplicas: 0
     latestVersion: 0
