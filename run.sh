@@ -20,7 +20,7 @@ if [ "${1:0:1}" != '-' ]; then
   exec "$@"
 fi
 
-chown -R 0:65534 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
+#chown -R 0:0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
 
 exec java -jar lib/sonar-application-$SONAR_VERSION.jar \
   -Dsonar.log.console=true \
