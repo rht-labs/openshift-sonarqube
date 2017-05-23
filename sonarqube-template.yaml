@@ -319,9 +319,9 @@ objects:
             value: ${SONAR_PLUGIN_LIST}
           - name: SONARQUBE_WEB_JVM_OPTS
             value: ${SONARQUBE_WEB_JVM_OPTS}
-          - name: SONAR_JDBC_USERNAME
+          - name: SONARQUBE_JDBC_USERNAME
             value: ${POSTGRESQL_USER}
-          - name: SONAR_JDBC_PASSWORD
+          - name: SONARQUBE_JDBC_PASSWORD
             value: ${POSTGRESQL_PASSWORD}
           - name: SONARQUBE_JDBC_URL
             value: ${SONARQUBE_JDBC_URL}
@@ -426,9 +426,6 @@ parameters:
 - name: VOLUME_CAPACITY
   description: The size of the Persistent Volume Claim to provision for SonarQube
   value: 2Gi
-- name: SONARQUBE_WEB_JVM_OPTS
-  description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
-  value:
 - name: SONARQUBE_WEB_JVM_OPTS
   description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
   value:
