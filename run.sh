@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -x
 set -e
 
 ## If the mounted data volume is empty, populate it from the default data
