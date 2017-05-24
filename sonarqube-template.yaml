@@ -365,8 +365,8 @@ objects:
             protocol: TCP
           resources:
             limits:
-              cpu: "2"
-              memory: 2Gi
+              cpu: ${SONARQUBE_CPU_LIMIT}
+              memory: ${SONARQUBE_MEMORY_LIMIT}
             requests:
               cpu: 500m
               memory: 1Gi
@@ -447,6 +447,16 @@ parameters:
   name: POSTGRESQL_VERSION
   required: true
   value: "9.5"
+- name: SONARQUBE_CPU_LIMIT
+  value: 2
+  displayName: SonarQube CPU limit
+  description: Number of virtual CPUs to allocate for SonarQube
+  required: false
+- name: SONARQUBE_MEMORY_LIMIT
+  value: 2Gi
+  displayName: SonarQube Memory Limit
+  description: The maximum amount of memory that the SonarQube application is allowed to use (Min is 512Mi)
+  required: false
 - name: SONAR_PLUGINS_LIST
   displayName: SonarQube Plugins List
   description: "Space separated list of plugins (See: https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix)"
