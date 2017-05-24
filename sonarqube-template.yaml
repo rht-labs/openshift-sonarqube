@@ -5,79 +5,76 @@ metadata:
   name: sonarqube
 objects:
 - apiVersion: v1
+  kind: Secret
+  metadata:
+    name: ${DATABASE_SERVICE_NAME}
+  stringData:
+    database-password: ${POSTGRESQL_PASSWORD}
+    database-user: ${POSTGRESQL_USER}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    name: ${DATABASE_SERVICE_NAME}
+  spec:
+    ports:
+    - name: postgresql
+      nodePort: 0
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      name: ${DATABASE_SERVICE_NAME}
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: openshift-sonarqube
+    name: ${DATABASE_SERVICE_NAME}
   spec:
     accessModes:
-      - ReadWriteMany
+    - ReadWriteOnce
     resources:
       requests:
         storage: ${VOLUME_CAPACITY}
 - apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    name: postgresql
-  spec:
-    accessModes:
-      - ReadWriteMany
-    resources:
-      requests:
-        storage: ${SONAR_DB_VOLUME_CAPACITY}
-- apiVersion: v1
-  kind: Secret
-  metadata:
-    name: postgresql
-  stringData:
-    database-user: ${POSTGRESQL_USER}
-    database-password: ${POSTGRESQL_PASSWORD}
-- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     creationTimestamp: null
-    generation: 2
-    labels:
-      app: postgresql-persistent
-      appName: sonarqube
-      template: postgresql-persistent-template
-    name: postgresql
+    name: ${DATABASE_SERVICE_NAME}
   spec:
     replicas: 1
     selector:
-      name: postgresql
+      name: ${DATABASE_SERVICE_NAME}
     strategy:
-      activeDeadlineSeconds: 21600
-      recreateParams:
-        timeoutSeconds: 600
-      resources: {}
       type: Recreate
     template:
       metadata:
         creationTimestamp: null
         labels:
-          name: postgresql
+          name: ${DATABASE_SERVICE_NAME}
       spec:
         containers:
-        - env:
+        - capabilities: {}
+          env:
           - name: POSTGRESQL_USER
             valueFrom:
               secretKeyRef:
                 key: database-user
-                name: postgresql
+                name: ${DATABASE_SERVICE_NAME}
           - name: POSTGRESQL_PASSWORD
             valueFrom:
               secretKeyRef:
                 key: database-password
-                name: postgresql
+                name: ${DATABASE_SERVICE_NAME}
           - name: POSTGRESQL_DATABASE
-            value: sonar
-          image: 'centos/postgresql-95-centos7@sha256:90900f49fd0610bf9a2d6da02a1bd5773ea412ed4c56d49b390595838b5a1431'
+            value: ${POSTGRESQL_DATABASE}
+          image: ' '
           imagePullPolicy: IfNotPresent
           livenessProbe:
-            failureThreshold: 3
             initialDelaySeconds: 30
-            periodSeconds: 10
-            successThreshold: 1
             tcpSocket:
               port: 5432
             timeoutSeconds: 1
@@ -91,71 +88,39 @@ objects:
               - /bin/sh
               - -i
               - -c
-              - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c
-                'SELECT 1'
-            failureThreshold: 3
+              - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE
+                -c 'SELECT 1'
             initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
             timeoutSeconds: 1
           resources:
             limits:
-              memory: ${SONAR_DB_MEMORY}
+              memory: ${MEMORY_LIMIT}
           securityContext:
             capabilities: {}
             privileged: false
           terminationMessagePath: /dev/termination-log
           volumeMounts:
           - mountPath: /var/lib/pgsql/data
-            name: postgresql-data
+            name: ${DATABASE_SERVICE_NAME}-data
         dnsPolicy: ClusterFirst
         restartPolicy: Always
-        securityContext: {}
-        terminationGracePeriodSeconds: 30
         volumes:
-        - name: postgresql-data
+        - name: ${DATABASE_SERVICE_NAME}-data
           persistentVolumeClaim:
-            claimName: postgresql
-    test: false
+            claimName: ${DATABASE_SERVICE_NAME}
     triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
+    - imageChangeParams:
         automatic: true
         containerNames:
         - postgresql
         from:
           kind: ImageStreamTag
-          name: 'postgresql:9.5'
-          namespace: openshift
-  status:
-    availableReplicas: 0
-    latestVersion: 0
-    observedGeneration: 0
-    replicas: 0
-    unavailableReplicas: 0
-    updatedReplicas: 0
-- apiVersion: v1
-  kind: Service
-  metadata:
-    creationTimestamp: null
-    labels:
-      app: postgresql-persistent
-      appName: sonarqube
-      template: postgresql-persistent-template
-    name: postgresql
-  spec:
-    ports:
-    - name: postgresql
-      port: 5432
-      protocol: TCP
-      targetPort: 5432
-    selector:
-      name: postgresql
-    sessionAffinity: None
-    type: ClusterIP
-  status:
-    loadBalancer: {}
+          name: postgresql:${POSTGRESQL_VERSION}
+          namespace: ${NAMESPACE}
+        lastTriggeredImage: ""
+      type: ImageChange
+    - type: ConfigChange
+  status: {}
 - apiVersion: v1
   kind: Route
   metadata:
@@ -420,12 +385,47 @@ objects:
     unavailableReplicas: 0
     updatedReplicas: 0
 parameters:
-- name: SONAR_DB_MEMORY
-  description: "The amount of RAM to allocate for the PostgreSQL DB service"
+- description: Maximum amount of memory for the PostgreSQL database
+  displayName: Memory Limit
+  name: MEMORY_LIMIT
+  required: true
   value: 512Mi
-- name: SONAR_DB_VOLUME_CAPACITY
-  description: "The size of the persistent volume to claim for the PostgreSQL DB"
-  value: 2Gi
+- description: The OpenShift Namespace where the ImageStream resides.
+  displayName: Namespace
+  name: NAMESPACE
+  value: openshift
+- description: The name of the OpenShift Service exposed for the database.
+  displayName: Database Service Name
+  name: DATABASE_SERVICE_NAME
+  required: true
+  value: postgresql
+- description: Username for PostgreSQL user that will be used for accessing the database.
+  displayName: PostgreSQL Connection Username
+  from: user[A-Z0-9]{3}
+  generate: expression
+  name: POSTGRESQL_USER
+  required: true
+- description: Password for the PostgreSQL connection user.
+  displayName: PostgreSQL Connection Password
+  from: '[a-zA-Z0-9]{16}'
+  generate: expression
+  name: POSTGRESQL_PASSWORD
+  required: true
+- description: Name of the PostgreSQL database accessed.
+  displayName: PostgreSQL Database Name
+  name: POSTGRESQL_DATABASE
+  required: true
+  value: sonar
+- description: Volume space available for data, e.g. 512Mi, 2Gi.
+  displayName: Volume Capacity
+  name: VOLUME_CAPACITY
+  required: true
+  value: 5Gi
+- description: Version of PostgreSQL image to be used (9.2, 9.4, 9.5 or latest).
+  displayName: Version of PostgreSQL Image
+  name: POSTGRESQL_VERSION
+  required: true
+  value: "9.5"
 - name: SONAR_PLUGINS_LIST
   description: "Space separated list of plugins (See: https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix)"
   value: findbugs pmd ldap buildbreaker github gitlab
@@ -435,14 +435,6 @@ parameters:
 - name: SONARQUBE_WEB_JVM_OPTS
   description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
   value:
-- name: POSTGRESQL_USER
-  description: Username used for SonarQube database authentication (leave blank to use ephemeral database)
-  from: "user[A-Za-z0-9]{4}"
-  generate: expression
-- name: POSTGRESQL_PASSWORD
-  description: Password used for SonarQube database authentication (leave blank to use ephemeral database)
-  from: "[A-Za-z0-9]{36}"
-  generate: expression
 - name: SONARQUBE_JDBC_URL
   description: Password used for SonarQube database authentication (leave blank to use ephemeral database)
   value: "jdbc:postgresql://postgresql:5432/sonar"
