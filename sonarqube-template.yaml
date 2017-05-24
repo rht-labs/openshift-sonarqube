@@ -242,6 +242,7 @@ objects:
     source:
       git:
         uri: 'https://github.com/InfoSec812/openshift-sonarqube.git'
+        ref: ${SONAR_CONTAINER_BRANCH}
       type: Git
     strategy:
       dockerStrategy:
@@ -400,6 +401,11 @@ objects:
     unavailableReplicas: 0
     updatedReplicas: 0
 parameters:
+- name: SONAR_CONTAINER_BRANCH
+  description: "Branch from which to build the SonarQube container (https://github.com/rht-labs/openshift-sonarqube)"
+  displayName: SonarQube Container Branch
+  value: master
+  required: false
 - description: Maximum amount of memory for the PostgreSQL database
   displayName: Memory Limit
   name: MEMORY_LIMIT
