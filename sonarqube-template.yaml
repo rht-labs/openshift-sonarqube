@@ -13,7 +13,7 @@ objects:
       - ReadWriteMany
     resources:
       requests:
-        storage: ${VOLUME_CAPACITY}
+        storage: ${SONARQUBE_VOLUME_CAPACITY}
 - apiVersion: v1
   kind: Secret
   metadata:
@@ -461,7 +461,7 @@ parameters:
   displayName: SonarQube Plugins List
   description: "Space separated list of plugins (See: https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix)"
   value: findbugs pmd ldap buildbreaker github gitlab
-- name: VOLUME_CAPACITY
+- name: SONARQUBE_VOLUME_CAPACITY
   displayName: SonarQube volume capacity
   description: The size of the Persistent Volume Claim to provision for SonarQube
   value: 2Gi
