@@ -242,7 +242,6 @@ objects:
     source:
       git:
         uri: 'https://github.com/InfoSec812/openshift-sonarqube.git'
-        ref: include-postgresql
       type: Git
     strategy:
       dockerStrategy:
@@ -301,9 +300,15 @@ objects:
           - name: SONARQUBE_WEB_JVM_OPTS
             value: ${SONARQUBE_WEB_JVM_OPTS}
           - name: SONARQUBE_JDBC_USERNAME
-            value: ${POSTGRESQL_USER}
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: ${DATABASE_SERVICE_NAME}
           - name: SONARQUBE_JDBC_PASSWORD
-            value: ${POSTGRESQL_PASSWORD}
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: ${DATABASE_SERVICE_NAME}
           - name: SONARQUBE_JDBC_URL
             value: ${SONARQUBE_JDBC_URL}
           - name: SONARQUBE_LDAP_BINDDN
@@ -437,76 +442,100 @@ parameters:
   required: true
   value: "9.5"
 - name: SONAR_PLUGINS_LIST
+  displayName: SonarQube Plugins List
   description: "Space separated list of plugins (See: https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix)"
   value: findbugs pmd ldap buildbreaker github gitlab
 - name: VOLUME_CAPACITY
+  displayName: SonarQube volume capacity
   description: The size of the Persistent Volume Claim to provision for SonarQube
   value: 2Gi
 - name: SONARQUBE_WEB_JVM_OPTS
+  displayName: Extra SonarQube startup properties
   description: Extra startup properties for SonarQube (in the form of "-Dsonar.someProperty=someValue")
   value:
 - name: SONARQUBE_JDBC_URL
+  displayName: JDBC URL for connecting to the SonarQube database
   description: Password used for SonarQube database authentication (leave blank to use ephemeral database)
   value: "jdbc:postgresql://postgresql:5432/sonar"
 - name: SONARQUBE_LDAP_BINDDN
+  displayName: LDPA bind Distinguished Name
   description: Bind DN for LDAP authentication (leave blank for local authentication)
   value:
 - name: SONARQUBE_LDAP_BINDPASSWD
+  displayName: LDAP bind password
   description: Bind password for LDAP authentication (leave blank for local authentication)
   value:
 - name: SONARQUBE_LDAP_URL
+  displayName: LDAP server URL
   description: LDAP URL for authentication (leave blank for local authentication)
   value:
 - name: SONARQUBE_LDAP_REALM
-  description: LDAP Realm
+  displayName: LDAP realm
+  description: "A realm defines the namespace from which the authentication entity (the value of the Context.SECURITY_PRINCIPAL property) is selected. (See: http://docs.oracle.com/javase/jndi/tutorial/ldap/security/digest.html)"
   value:
 - name: SONARQUBE_LDAP_CONTEXTFACTORY
-  description: JNDI ContextFactory class to be used
+  displayName: JNDI ContextFactory to be used
+  description: The context factory is a Java class which is used for creating bindings to LDAP servers. The default value should work with most LDAP servers.
   value: com.sun.jndi.ldap.LdapCtxFactory
 - name: SONARQUBE_LDAP_STARTTLS
-  description: Enable StartTLS for the LDAP connection
+  displayName: Enable StartTLS
+  description: Tells the LDAP plugin to use TLS for connections to the LDAP server
   value: "false"
 - name: SONARQUBE_LDAP_AUTHENTICATION
-  description:  LDAP authentication method (simple | CRAM-MD5 | DIGEST-MD5 | GSSAPI)
+  displayName: LDAP authentication method
+  description:  "Typical values include: simple | CRAM-MD5 | DIGEST-MD5 | GSSAPI"
   value: simple
 - name: SONARQUBE_LDAP_USER_BASEDN
+  displayName: LDAP user base Distinguished Name
   description: LDAP BaseDN under which to search for user objects
   value:
 - name: SONARQUBE_LDAP_USER_REQUEST
-  description: LDAP filter to select user objects
+  displayName: LDAP user object filter
+  description: A filter definition which will cause the LDAP server to only return user objects
   value: (&(objectClass=inetOrgPerson)(uid={login}))
 - name: SONARQUBE_LDAP_USER_REAL_NAME_ATTR
-  description: LDAP attribute which holds the user's full name
+  displayName: LDAP user's real name atrribute
+  description: LDAP attribute on the user object which will be used to get the user's full name
   value: cn
 - name: SONARQUBE_LDAP_USER_EMAIL_ATTR
+  displayName: LDAP user e-mail attribute
   description: LDAP attribute which holds the user's e-mail address
   value: mail
 - name: SONARQUBE_LDAP_GROUP_BASEDN
+  displayName: LDAP group base Distinguished Name
   description: LDAP BaseDN under which to search for group objects
   value:
 - name: SONARQUBE_LDAP_GROUP_REQUEST
-  description: LDAP filter to select group objects
+  displayName: LDAP group object filter
+  description: A filter definition which will cause the LDAP server to only return group objects
   value: (&(objectClass=groupOfUniqueNames)(uniqueMember={dn}))
 - name: SONARQUBE_LDAP_GROUP_ID_ATTR
-  description: LDAP attribute which holds the group's ID
+  displayName: LDAP group ID attribute
+  description: LDAP attribute from the group object which holds the group's ID
   value: cn
 - name: SONARQUBE_BUILDBREAKER_MAX_ATTEMPTS
-  description: Build Break plugin - Max number of poll attempts
+  displayName: Max BuildBreaker attempts
+  description: Build Breaker plugin - Max number of poll attempts before failing to get analysis results
   value: "30"
 - name: SONARQUBE_BUILDBREAKER_INTERVAL
-  description: Build Breaker plugin - Interval to wait between poll requests
+  displayName: Poll Interval
+  description: Build Breaker plugin - Interval to wait between poll requests to get analysis results
   value: "20000"
 - name: SONARQUBE_BUILDBREAKER_THRESHOLD
-  description: Build Breaker plugin - Threshold at which a build will instantly break
+  displayName: Failure threshold
+  description: Build Breaker plugin - Threshold of an issue at which a build will instantly break regardless of all other analysis results
   value: "CRITICAL"
 - name: SONAR_BUILDBREAKER_DISABLE
+  displayName: Disable Build Breaker plugin
   description: Build Breaker plugin - Disable the build breaker plugin for all builds
   value: "true"
 - name: GITHUB_SECRET
+  displayName: Secret string for GitHub WebHooks
   description: Generated secret key for GitHub webhooks
   from: "[A-Za-z0-9]{36}"
   generate: expression
 - name: GENERIC_SECRET
+  displayName: Secret string for generic WebHooks
   description: Generated secret key for generic webhooks
   from: "[A-Za-z0-9]{36}"
   generate: expression
