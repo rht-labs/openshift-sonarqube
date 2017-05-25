@@ -319,7 +319,7 @@
           "app": "openshift-sonarqube",
           "appName": "sonarqube"
         },
-        "name": "openshift-sonarqube"
+        "name": "sonarqube"
       },
       "spec": {
         "ports": [
