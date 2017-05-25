@@ -2,645 +2,635 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "true",
+    "name": "sonarqube",
     "creationTimestamp": null
   },
   "objects": [
     {
-      "kind": "Template",
       "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
       "metadata": {
-        "name": "sonarqube",
-        "creationTimestamp": null
+        "name": "openshift-sonarqube"
       },
-      "objects": [
-        {
-          "apiVersion": "v1",
-          "kind": "PersistentVolumeClaim",
-          "metadata": {
-            "name": "openshift-sonarqube"
-          },
-          "spec": {
-            "accessModes": [
-              "ReadWriteMany"
-            ],
-            "resources": {
-              "requests": {
-                "storage": "${SONARQUBE_VOLUME_CAPACITY}"
-              }
-            }
+      "spec": {
+        "accessModes": [
+          "ReadWriteMany"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "${SONARQUBE_VOLUME_CAPACITY}"
           }
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "Secret",
-          "metadata": {
-            "name": "${DATABASE_SERVICE_NAME}"
-          },
-          "stringData": {
-            "database-password": "${POSTGRESQL_PASSWORD}",
-            "database-user": "${POSTGRESQL_USER}"
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Secret",
+      "metadata": {
+        "name": "${DATABASE_SERVICE_NAME}"
+      },
+      "stringData": {
+        "database-password": "${POSTGRESQL_PASSWORD}",
+        "database-user": "${POSTGRESQL_USER}"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "creationTimestamp": null,
+        "name": "${DATABASE_SERVICE_NAME}"
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "postgresql",
+            "nodePort": 0,
+            "port": 5432,
+            "protocol": "TCP",
+            "targetPort": 5432
           }
+        ],
+        "selector": {
+          "name": "${DATABASE_SERVICE_NAME}"
         },
-        {
-          "apiVersion": "v1",
-          "kind": "Service",
+        "sessionAffinity": "None",
+        "type": "ClusterIP"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "${DATABASE_SERVICE_NAME}"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "${VOLUME_CAPACITY}"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "DeploymentConfig",
+      "metadata": {
+        "creationTimestamp": null,
+        "name": "${DATABASE_SERVICE_NAME}"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "name": "${DATABASE_SERVICE_NAME}"
+        },
+        "strategy": {
+          "type": "Recreate"
+        },
+        "template": {
           "metadata": {
             "creationTimestamp": null,
-            "name": "${DATABASE_SERVICE_NAME}"
+            "labels": {
+              "name": "${DATABASE_SERVICE_NAME}"
+            }
           },
           "spec": {
-            "ports": [
+            "containers": [
               {
-                "name": "postgresql",
-                "nodePort": 0,
-                "port": 5432,
-                "protocol": "TCP",
-                "targetPort": 5432
-              }
-            ],
-            "selector": {
-              "name": "${DATABASE_SERVICE_NAME}"
-            },
-            "sessionAffinity": "None",
-            "type": "ClusterIP"
-          },
-          "status": {
-            "loadBalancer": {}
-          }
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "PersistentVolumeClaim",
-          "metadata": {
-            "name": "${DATABASE_SERVICE_NAME}"
-          },
-          "spec": {
-            "accessModes": [
-              "ReadWriteOnce"
-            ],
-            "resources": {
-              "requests": {
-                "storage": "${VOLUME_CAPACITY}"
-              }
-            }
-          }
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "DeploymentConfig",
-          "metadata": {
-            "creationTimestamp": null,
-            "name": "${DATABASE_SERVICE_NAME}"
-          },
-          "spec": {
-            "replicas": 1,
-            "selector": {
-              "name": "${DATABASE_SERVICE_NAME}"
-            },
-            "strategy": {
-              "type": "Recreate"
-            },
-            "template": {
-              "metadata": {
-                "creationTimestamp": null,
-                "labels": {
-                  "name": "${DATABASE_SERVICE_NAME}"
-                }
-              },
-              "spec": {
-                "containers": [
+                "capabilities": {},
+                "env": [
                   {
-                    "capabilities": {},
-                    "env": [
-                      {
-                        "name": "POSTGRESQL_USER",
-                        "valueFrom": {
-                          "secretKeyRef": {
-                            "key": "database-user",
-                            "name": "${DATABASE_SERVICE_NAME}"
-                          }
-                        }
-                      },
-                      {
-                        "name": "POSTGRESQL_PASSWORD",
-                        "valueFrom": {
-                          "secretKeyRef": {
-                            "key": "database-password",
-                            "name": "${DATABASE_SERVICE_NAME}"
-                          }
-                        }
-                      },
-                      {
-                        "name": "POSTGRESQL_DATABASE",
-                        "value": "${POSTGRESQL_DATABASE}"
+                    "name": "POSTGRESQL_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "database-user",
+                        "name": "${DATABASE_SERVICE_NAME}"
                       }
-                    ],
-                    "image": " ",
-                    "imagePullPolicy": "IfNotPresent",
-                    "livenessProbe": {
-                      "initialDelaySeconds": 30,
-                      "tcpSocket": {
-                        "port": 5432
-                      },
-                      "timeoutSeconds": 1
-                    },
-                    "name": "postgresql",
-                    "ports": [
-                      {
-                        "containerPort": 5432,
-                        "protocol": "TCP"
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "database-password",
+                        "name": "${DATABASE_SERVICE_NAME}"
                       }
-                    ],
-                    "readinessProbe": {
-                      "exec": {
-                        "command": [
-                          "/bin/sh",
-                          "-i",
-                          "-c",
-                          "psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"
-                        ]
-                      },
-                      "initialDelaySeconds": 5,
-                      "timeoutSeconds": 1
-                    },
-                    "resources": {
-                      "limits": {
-                        "memory": "${MEMORY_LIMIT}"
-                      }
-                    },
-                    "securityContext": {
-                      "capabilities": {},
-                      "privileged": false
-                    },
-                    "terminationMessagePath": "/dev/termination-log",
-                    "volumeMounts": [
-                      {
-                        "mountPath": "/var/lib/pgsql/data",
-                        "name": "${DATABASE_SERVICE_NAME}-data"
-                      }
-                    ]
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_DATABASE",
+                    "value": "${POSTGRESQL_DATABASE}"
                   }
                 ],
-                "dnsPolicy": "ClusterFirst",
-                "restartPolicy": "Always",
-                "volumes": [
+                "image": " ",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "initialDelaySeconds": 30,
+                  "tcpSocket": {
+                    "port": 5432
+                  },
+                  "timeoutSeconds": 1
+                },
+                "name": "postgresql",
+                "ports": [
                   {
-                    "name": "${DATABASE_SERVICE_NAME}-data",
-                    "persistentVolumeClaim": {
-                      "claimName": "${DATABASE_SERVICE_NAME}"
-                    }
+                    "containerPort": 5432,
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "exec": {
+                    "command": [
+                      "/bin/sh",
+                      "-i",
+                      "-c",
+                      "psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"
+                    ]
+                  },
+                  "initialDelaySeconds": 5,
+                  "timeoutSeconds": 1
+                },
+                "resources": {
+                  "limits": {
+                    "memory": "${MEMORY_LIMIT}"
+                  }
+                },
+                "securityContext": {
+                  "capabilities": {},
+                  "privileged": false
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/var/lib/pgsql/data",
+                    "name": "${DATABASE_SERVICE_NAME}-data"
                   }
                 ]
               }
-            },
-            "triggers": [
-              {
-                "imageChangeParams": {
-                  "automatic": true,
-                  "containerNames": [
-                    "postgresql"
-                  ],
-                  "from": {
-                    "kind": "ImageStreamTag",
-                    "name": "postgresql:${POSTGRESQL_VERSION}",
-                    "namespace": "${NAMESPACE}"
-                  },
-                  "lastTriggeredImage": ""
-                },
-                "type": "ImageChange"
-              },
-              {
-                "type": "ConfigChange"
-              }
-            ]
-          },
-          "status": {}
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "Route",
-          "metadata": {
-            "annotations": {
-              "openshift.io/host.generated": "true"
-            },
-            "creationTimestamp": null,
-            "labels": {
-              "appName": "sonarqube"
-            },
-            "name": "openshift-sonarqube"
-          },
-          "spec": {
-            "port": {
-              "targetPort": "9000-tcp"
-            },
-            "to": {
-              "kind": "Service",
-              "name": "openshift-sonarqube",
-              "weight": 100
-            },
-            "wildcardPolicy": "None"
-          }
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "ImageStream",
-          "metadata": {
-            "annotations": {
-              "openshift.io/generated-by": "OpenShiftNewApp"
-            },
-            "creationTimestamp": null,
-            "generation": 1,
-            "labels": {
-              "app": "openshift-sonarqube",
-              "appName": "sonarqube"
-            },
-            "name": "openshift-sonarqube"
-          },
-          "spec": {
-            "tags": [
-              {
-                "annotations": null,
-                "from": {
-                  "kind": "DockerImage",
-                  "name": "openshift-sonarqube:latest"
-                },
-                "generation": null,
-                "importPolicy": {},
-                "name": "latest",
-                "referencePolicy": {
-                  "type": ""
-                }
-              }
-            ]
-          },
-          "status": {
-            "dockerImageRepository": ""
-          }
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "ImageStream",
-          "metadata": {
-            "annotations": null,
-            "creationTimestamp": null,
-            "generation": 2,
-            "labels": {
-              "app": "sonarqube",
-              "appName": "sonarqube"
-            },
-            "name": "sonarqube"
-          },
-          "spec": {
-            "tags": [
-              {
-                "annotations": {
-                  "openshift.io/generated-by": "OpenShiftWebConsole",
-                  "openshift.io/imported-from": "sonarqube:latest"
-                },
-                "from": {
-                  "kind": "DockerImage",
-                  "name": "sonarqube:latest"
-                },
-                "generation": 2,
-                "importPolicy": {},
-                "name": "latest",
-                "referencePolicy": {
-                  "type": "Source"
-                }
-              }
-            ]
-          },
-          "status": {
-            "dockerImageRepository": ""
-          }
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "Service",
-          "metadata": {
-            "creationTimestamp": null,
-            "annotations": {
-              "service.alpha.openshift.io/dependencies": "[{\"name\":\"postgresql\",\"namespace\":\"\",\"kind\":\"Service\"}]"
-            },
-            "labels": {
-              "app": "openshift-sonarqube",
-              "appName": "sonarqube"
-            },
-            "name": "openshift-sonarqube"
-          },
-          "spec": {
-            "ports": [
-              {
-                "name": "9000-tcp",
-                "port": 9000,
-                "protocol": "TCP",
-                "targetPort": 9000
-              }
             ],
-            "selector": {
+            "dnsPolicy": "ClusterFirst",
+            "restartPolicy": "Always",
+            "volumes": [
+              {
+                "name": "${DATABASE_SERVICE_NAME}-data",
+                "persistentVolumeClaim": {
+                  "claimName": "${DATABASE_SERVICE_NAME}"
+                }
+              }
+            ]
+          }
+        },
+        "triggers": [
+          {
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "postgresql"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "postgresql:${POSTGRESQL_VERSION}",
+                "namespace": "${NAMESPACE}"
+              },
+              "lastTriggeredImage": ""
+            },
+            "type": "ImageChange"
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      },
+      "status": {}
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Route",
+      "metadata": {
+        "annotations": {
+          "openshift.io/host.generated": "true"
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "appName": "sonarqube"
+        },
+        "name": "openshift-sonarqube"
+      },
+      "spec": {
+        "port": {
+          "targetPort": "9000-tcp"
+        },
+        "to": {
+          "kind": "Service",
+          "name": "openshift-sonarqube",
+          "weight": 100
+        },
+        "wildcardPolicy": "None"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/generated-by": "OpenShiftNewApp"
+        },
+        "creationTimestamp": null,
+        "generation": 1,
+        "labels": {
+          "app": "openshift-sonarqube",
+          "appName": "sonarqube"
+        },
+        "name": "openshift-sonarqube"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "openshift-sonarqube:latest"
+            },
+            "generation": null,
+            "importPolicy": {},
+            "name": "latest",
+            "referencePolicy": {
+              "type": ""
+            }
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": null,
+        "creationTimestamp": null,
+        "generation": 2,
+        "labels": {
+          "app": "sonarqube",
+          "appName": "sonarqube"
+        },
+        "name": "sonarqube"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "openshift.io/generated-by": "OpenShiftWebConsole",
+              "openshift.io/imported-from": "sonarqube:latest"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "sonarqube:latest"
+            },
+            "generation": 2,
+            "importPolicy": {},
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Source"
+            }
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "creationTimestamp": null,
+        "annotations": {
+          "service.alpha.openshift.io/dependencies": "[{\"name\":\"postgresql\",\"namespace\":\"\",\"kind\":\"Service\"}]"
+        },
+        "labels": {
+          "app": "openshift-sonarqube",
+          "appName": "sonarqube"
+        },
+        "name": "openshift-sonarqube"
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "9000-tcp",
+            "port": 9000,
+            "protocol": "TCP",
+            "targetPort": 9000
+          }
+        ],
+        "selector": {
+          "app": "openshift-sonarqube",
+          "deploymentconfig": "openshift-sonarqube"
+        },
+        "sessionAffinity": "None",
+        "type": "ClusterIP"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "BuildConfig",
+      "metadata": {
+        "annotations": {
+          "openshift.io/generated-by": "OpenShiftNewApp"
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "app": "openshift-sonarqube",
+          "appName": "sonarqube"
+        },
+        "name": "openshift-sonarqube"
+      },
+      "spec": {
+        "nodeSelector": null,
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "openshift-sonarqube:latest"
+          }
+        },
+        "postCommit": {},
+        "resources": {},
+        "runPolicy": "Serial",
+        "source": {
+          "git": {
+            "uri": "https://github.com/InfoSec812/openshift-sonarqube.git",
+            "ref": "${SONAR_CONTAINER_BRANCH}"
+          },
+          "type": "Git"
+        },
+        "strategy": {
+          "dockerStrategy": {
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "sonarqube:latest"
+            },
+            "env": [
+              {
+                "name": "SONAR_PLUGINS_LIST",
+                "value": "${SONAR_PLUGINS_LIST}"
+              }
+            ]
+          },
+          "type": "Docker"
+        },
+        "triggers": [
+          {
+            "github": {
+              "secret": "tu5UyJNNhAyxXYrcnDTZ"
+            },
+            "type": "GitHub"
+          },
+          {
+            "generic": {
+              "secret": "xhUU0WVDG3eA2Yu89zGe"
+            },
+            "type": "Generic"
+          },
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "imageChange": {},
+            "type": "ImageChange"
+          }
+        ]
+      },
+      "status": {
+        "lastVersion": 0
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "DeploymentConfig",
+      "metadata": {
+        "labels": {
+          "app": "openshift-sonarqube",
+          "appName": "sonarqube",
+          "name": "openshift-sonarqube"
+        },
+        "name": "openshift-sonarqube"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "app": "openshift-sonarqube",
+          "deploymentconfig": "openshift-sonarqube"
+        },
+        "strategy": {
+          "activeDeadlineSeconds": 21600,
+          "resources": {},
+          "rollingParams": {
+            "intervalSeconds": 1,
+            "maxSurge": "25%",
+            "maxUnavailable": "25%",
+            "timeoutSeconds": 600,
+            "updatePeriodSeconds": 1
+          },
+          "type": "Rolling"
+        },
+        "template": {
+          "metadata": {
+            "labels": {
               "app": "openshift-sonarqube",
               "deploymentconfig": "openshift-sonarqube"
-            },
-            "sessionAffinity": "None",
-            "type": "ClusterIP"
-          },
-          "status": {
-            "loadBalancer": {}
-          }
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "BuildConfig",
-          "metadata": {
-            "annotations": {
-              "openshift.io/generated-by": "OpenShiftNewApp"
-            },
-            "creationTimestamp": null,
-            "labels": {
-              "app": "openshift-sonarqube",
-              "appName": "sonarqube"
-            },
-            "name": "openshift-sonarqube"
+            }
           },
           "spec": {
-            "nodeSelector": null,
-            "output": {
-              "to": {
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "SONAR_PLUGIN_LIST",
+                    "value": "${SONAR_PLUGIN_LIST}"
+                  },
+                  {
+                    "name": "SONARQUBE_WEB_JVM_OPTS",
+                    "value": "${SONARQUBE_WEB_JVM_OPTS}"
+                  },
+                  {
+                    "name": "SONARQUBE_JDBC_USERNAME",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "database-user",
+                        "name": "${DATABASE_SERVICE_NAME}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SONARQUBE_JDBC_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "database-password",
+                        "name": "${DATABASE_SERVICE_NAME}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SONARQUBE_JDBC_URL",
+                    "value": "${SONARQUBE_JDBC_URL}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_BINDDN",
+                    "value": "${SONARQUBE_LDAP_BINDDN}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_BINDPASSWD",
+                    "value": "${SONARQUBE_LDAP_BINDPASSWD}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_URL",
+                    "value": "${SONARQUBE_LDAP_URL}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_REALM",
+                    "value": "${SONARQUBE_LDAP_REALM}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_CONTEXTFACTORY",
+                    "value": "${SONARQUBE_LDAP_CONTEXTFACTORY}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_STARTTLS",
+                    "value": "${SONARQUBE_LDAP_STARTTLS}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_AUTHENTICATION",
+                    "value": "${SONARQUBE_LDAP_AUTHENTICATION}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_USER_BASEDN",
+                    "value": "${SONARQUBE_LDAP_USER_BASEDN}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_USER_REQUEST",
+                    "value": "${SONARQUBE_LDAP_USER_REQUEST}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_USER_REAL_NAME_ATTR",
+                    "value": "${SONARQUBE_LDAP_USER_REAL_NAME_ATTR}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_USER_EMAIL_ATTR",
+                    "value": "${SONARQUBE_LDAP_USER_EMAIL_ATTR}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_GROUP_BASEDN",
+                    "value": "${SONARQUBE_LDAP_GROUP_BASEDN}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_GROUP_REQUEST",
+                    "value": "${SONARQUBE_LDAP_GROUP_REQUEST}"
+                  },
+                  {
+                    "name": "SONARQUBE_LDAP_GROUP_ID_ATTR",
+                    "value": "${SONARQUBE_LDAP_GROUP_ID_ATTR}"
+                  },
+                  {
+                    "name": "SONARQUBE_BUILDBREAKER_MAX_ATTEMPTS",
+                    "value": "${SONARQUBE_BUILDBREAKER_MAX_ATTEMPTS}"
+                  },
+                  {
+                    "name": "SONARQUBE_BUILDBREAKER_INTERVAL",
+                    "value": "${SONARQUBE_BUILDBREAKER_INTERVAL}"
+                  },
+                  {
+                    "name": "SONARQUBE_BUILDBREAKER_THRESHOLD",
+                    "value": "${SONARQUBE_BUILDBREAKER_THRESHOLD}"
+                  },
+                  {
+                    "name": "SONAR_BUILDBREAKER_DISABLE",
+                    "value": "${SONAR_BUILDBREAKER_DISABLE}"
+                  }
+                ],
+                "imagePullPolicy": "Always",
+                "livenessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/",
+                    "port": 9000,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 45,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 3
+                },
+                "name": "openshift-sonarqube",
+                "ports": [
+                  {
+                    "containerPort": 9000,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "cpu": "${SONARQUBE_CPU_LIMIT}",
+                    "memory": "${SONARQUBE_MEMORY_LIMIT}"
+                  },
+                  "requests": {
+                    "cpu": "500m",
+                    "memory": "1Gi"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/opt/sonarqube/data",
+                    "name": "openshift-sonarqube"
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "restartPolicy": "Always",
+            "securityContext": {},
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "name": "openshift-sonarqube",
+                "persistentVolumeClaim": {
+                  "claimName": "openshift-sonarqube"
+                }
+              }
+            ]
+          }
+        },
+        "test": false,
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "openshift-sonarqube"
+              ],
+              "from": {
                 "kind": "ImageStreamTag",
                 "name": "openshift-sonarqube:latest"
               }
-            },
-            "postCommit": {},
-            "resources": {},
-            "runPolicy": "Serial",
-            "source": {
-              "git": {
-                "uri": "https://github.com/InfoSec812/openshift-sonarqube.git",
-                "ref": "${SONAR_CONTAINER_BRANCH}"
-              },
-              "type": "Git"
-            },
-            "strategy": {
-              "dockerStrategy": {
-                "from": {
-                  "kind": "ImageStreamTag",
-                  "name": "sonarqube:latest"
-                },
-                "env": [
-                  {
-                    "name": "SONAR_PLUGINS_LIST",
-                    "value": "${SONAR_PLUGINS_LIST}"
-                  }
-                ]
-              },
-              "type": "Docker"
-            },
-            "triggers": [
-              {
-                "github": {
-                  "secret": "tu5UyJNNhAyxXYrcnDTZ"
-                },
-                "type": "GitHub"
-              },
-              {
-                "generic": {
-                  "secret": "xhUU0WVDG3eA2Yu89zGe"
-                },
-                "type": "Generic"
-              },
-              {
-                "type": "ConfigChange"
-              },
-              {
-                "imageChange": {},
-                "type": "ImageChange"
-              }
-            ]
-          },
-          "status": {
-            "lastVersion": 0
+            }
           }
-        },
-        {
-          "apiVersion": "v1",
-          "kind": "DeploymentConfig",
-          "metadata": {
-            "labels": {
-              "app": "openshift-sonarqube",
-              "appName": "sonarqube",
-              "name": "openshift-sonarqube"
-            },
-            "name": "openshift-sonarqube"
-          },
-          "spec": {
-            "replicas": 1,
-            "selector": {
-              "app": "openshift-sonarqube",
-              "deploymentconfig": "openshift-sonarqube"
-            },
-            "strategy": {
-              "activeDeadlineSeconds": 21600,
-              "resources": {},
-              "rollingParams": {
-                "intervalSeconds": 1,
-                "maxSurge": "25%",
-                "maxUnavailable": "25%",
-                "timeoutSeconds": 600,
-                "updatePeriodSeconds": 1
-              },
-              "type": "Rolling"
-            },
-            "template": {
-              "metadata": {
-                "labels": {
-                  "app": "openshift-sonarqube",
-                  "deploymentconfig": "openshift-sonarqube"
-                }
-              },
-              "spec": {
-                "containers": [
-                  {
-                    "env": [
-                      {
-                        "name": "SONAR_PLUGIN_LIST",
-                        "value": "${SONAR_PLUGIN_LIST}"
-                      },
-                      {
-                        "name": "SONARQUBE_WEB_JVM_OPTS",
-                        "value": "${SONARQUBE_WEB_JVM_OPTS}"
-                      },
-                      {
-                        "name": "SONARQUBE_JDBC_USERNAME",
-                        "valueFrom": {
-                          "secretKeyRef": {
-                            "key": "database-user",
-                            "name": "${DATABASE_SERVICE_NAME}"
-                          }
-                        }
-                      },
-                      {
-                        "name": "SONARQUBE_JDBC_PASSWORD",
-                        "valueFrom": {
-                          "secretKeyRef": {
-                            "key": "database-password",
-                            "name": "${DATABASE_SERVICE_NAME}"
-                          }
-                        }
-                      },
-                      {
-                        "name": "SONARQUBE_JDBC_URL",
-                        "value": "${SONARQUBE_JDBC_URL}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_BINDDN",
-                        "value": "${SONARQUBE_LDAP_BINDDN}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_BINDPASSWD",
-                        "value": "${SONARQUBE_LDAP_BINDPASSWD}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_URL",
-                        "value": "${SONARQUBE_LDAP_URL}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_REALM",
-                        "value": "${SONARQUBE_LDAP_REALM}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_CONTEXTFACTORY",
-                        "value": "${SONARQUBE_LDAP_CONTEXTFACTORY}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_STARTTLS",
-                        "value": "${SONARQUBE_LDAP_STARTTLS}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_AUTHENTICATION",
-                        "value": "${SONARQUBE_LDAP_AUTHENTICATION}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_USER_BASEDN",
-                        "value": "${SONARQUBE_LDAP_USER_BASEDN}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_USER_REQUEST",
-                        "value": "${SONARQUBE_LDAP_USER_REQUEST}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_USER_REAL_NAME_ATTR",
-                        "value": "${SONARQUBE_LDAP_USER_REAL_NAME_ATTR}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_USER_EMAIL_ATTR",
-                        "value": "${SONARQUBE_LDAP_USER_EMAIL_ATTR}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_GROUP_BASEDN",
-                        "value": "${SONARQUBE_LDAP_GROUP_BASEDN}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_GROUP_REQUEST",
-                        "value": "${SONARQUBE_LDAP_GROUP_REQUEST}"
-                      },
-                      {
-                        "name": "SONARQUBE_LDAP_GROUP_ID_ATTR",
-                        "value": "${SONARQUBE_LDAP_GROUP_ID_ATTR}"
-                      },
-                      {
-                        "name": "SONARQUBE_BUILDBREAKER_MAX_ATTEMPTS",
-                        "value": "${SONARQUBE_BUILDBREAKER_MAX_ATTEMPTS}"
-                      },
-                      {
-                        "name": "SONARQUBE_BUILDBREAKER_INTERVAL",
-                        "value": "${SONARQUBE_BUILDBREAKER_INTERVAL}"
-                      },
-                      {
-                        "name": "SONARQUBE_BUILDBREAKER_THRESHOLD",
-                        "value": "${SONARQUBE_BUILDBREAKER_THRESHOLD}"
-                      },
-                      {
-                        "name": "SONAR_BUILDBREAKER_DISABLE",
-                        "value": "${SONAR_BUILDBREAKER_DISABLE}"
-                      }
-                    ],
-                    "imagePullPolicy": "Always",
-                    "livenessProbe": {
-                      "failureThreshold": 3,
-                      "httpGet": {
-                        "path": "/",
-                        "port": 9000,
-                        "scheme": "HTTP"
-                      },
-                      "initialDelaySeconds": 45,
-                      "periodSeconds": 10,
-                      "successThreshold": 1,
-                      "timeoutSeconds": 3
-                    },
-                    "name": "openshift-sonarqube",
-                    "ports": [
-                      {
-                        "containerPort": 9000,
-                        "protocol": "TCP"
-                      }
-                    ],
-                    "resources": {
-                      "limits": {
-                        "cpu": "${SONARQUBE_CPU_LIMIT}",
-                        "memory": "${SONARQUBE_MEMORY_LIMIT}"
-                      },
-                      "requests": {
-                        "cpu": "500m",
-                        "memory": "1Gi"
-                      }
-                    },
-                    "terminationMessagePath": "/dev/termination-log",
-                    "volumeMounts": [
-                      {
-                        "mountPath": "/opt/sonarqube/data",
-                        "name": "openshift-sonarqube"
-                      }
-                    ]
-                  }
-                ],
-                "dnsPolicy": "ClusterFirst",
-                "restartPolicy": "Always",
-                "securityContext": {},
-                "terminationGracePeriodSeconds": 30,
-                "volumes": [
-                  {
-                    "name": "openshift-sonarqube",
-                    "persistentVolumeClaim": {
-                      "claimName": "openshift-sonarqube"
-                    }
-                  }
-                ]
-              }
-            },
-            "test": false,
-            "triggers": [
-              {
-                "type": "ConfigChange"
-              },
-              {
-                "type": "ImageChange",
-                "imageChangeParams": {
-                  "automatic": true,
-                  "containerNames": [
-                    "openshift-sonarqube"
-                  ],
-                  "from": {
-                    "kind": "ImageStreamTag",
-                    "name": "openshift-sonarqube:latest"
-                  }
-                }
-              }
-            ]
-          },
-          "status": {}
-        }
-      ]
+        ]
+      },
+      "status": {}
     }
   ],
   "parameters": [
