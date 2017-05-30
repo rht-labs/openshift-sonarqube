@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-curl -s https://update.sonarsource.org/update-center.properties | grep downloadUrl > /tmp/pluginList.txt
+curl -s https://update.sonarsource.org/update-center.properties -o /tmp/pluginList.txt || printf 'Failed to download plugin listings\n'
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
 do
