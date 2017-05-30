@@ -5,7 +5,7 @@ set -e
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
 do
-    DOWNLOAD_URL=$(cat /tmp/pluginList.txt | grep ${PLUGIN} | sort -V | tail -n 1 | awk -F"=" '{print $2}' | sed 's@\\:@:@g')
+    DOWNLOAD_URL=$(cat /tmp/pluginList.txt | grep downloadUrl | grep ${PLUGIN} | sort -V | tail -n 1 | awk -F"=" '{print $2}' | sed 's@\\:@:@g')
 
     ## Check to see if plugin exists, attempt to download the plugin if it does exist.
     if ! [[ -z "${DOWNLOAD_URL}" ]]; then
