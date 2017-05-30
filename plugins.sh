@@ -2,6 +2,7 @@
 
 set -e
 
+curl -s -k https://update.sonarsource.org/update-center.properties -o /tmp/pluginList.txt
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
 do
