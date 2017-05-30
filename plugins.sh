@@ -10,11 +10,11 @@ do
 
     ## Check to see if plugin exists, attempt to download the plugin if it does exist.
     if ! [[ -z "${DOWNLOAD_URL}" ]]; then
-        printf "    %-15s" ${PLUGIN}
+        printf "\t%-15s" ${PLUGIN}
         curl -Ls -o /opt/sonarqube/extensions-init/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} >> /dev/null 2>&1 && printf "%10s" "DONE" || printf "%10s" "FAILED"
         printf "\n"
     else
         ## Plugin was not found in the plugin inventory
-        printf "    %-15s%10s\n" "${PLUGIN}" "NOT FOUND"
+        printf "\t%-15s%10s\n" "${PLUGIN}" "NOT FOUND"
     fi
 done
