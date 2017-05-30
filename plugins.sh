@@ -4,7 +4,7 @@ set -e
 set -x
 
 printf 'Downloading plugin details\n'
-curl -k https://update.sonarsource.org/update-center.properties -o /tmp/pluginList.txt
+curl -k -L https://update.sonarsource.org/update-center.properties -o /tmp/pluginList.txt
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
 do
