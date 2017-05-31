@@ -385,7 +385,7 @@
                 "value": "${SONAR_PLUGINS_LIST}"
               }
             ],
-            "noCache": true
+            "noCache": false
           },
           "type": "Docker"
         },

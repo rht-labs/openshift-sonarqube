@@ -4,6 +4,9 @@ set -e
 set -x
 
 printf 'Downloading plugin details\n'
+
+sleep 20
+
 wget -O /tmp/pluginList.txt https://update.sonarsource.org/update-center.properties
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
