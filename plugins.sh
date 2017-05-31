@@ -7,7 +7,7 @@ printf 'Downloading plugin details\n'
 
 sleep 20
 
-curl -sS -o /tmp/pluginList.txt https://update.sonarsource.org/update-center.properties
+curl -L -sS -o /tmp/pluginList.txt https://update.sonarsource.org/update-center.properties
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
 do
@@ -20,7 +20,7 @@ do
 		## Check to see if plugin exists, attempt to download the plugin if it does exist.
 		if ! [[ -z "${DOWNLOAD_URL}" ]]; then
 			printf "\t\t%-15s" ${PLUGIN}
-			curl -sS -o /opt/sonarqube/extensions-init/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} && printf "%10s" "DONE" || printf "%10s" "FAILED"
+			curl -L -sS -o /opt/sonarqube/extensions-init/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} && printf "%10s" "DONE" || printf "%10s" "FAILED"
 			printf "\n"
 		else
 			## Plugin was not found in the plugin inventory
