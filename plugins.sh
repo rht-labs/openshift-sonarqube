@@ -2,8 +2,7 @@
 
 set -e
 set -x
-printf 'Updating CA Certs\n'
-/usr/sbin/update-ca-certificates
+
 printf 'Downloading plugin details\n'
 curl -k -L --trace https://update.sonarsource.org/update-center.properties -o /tmp/pluginList.txt
 printf "Downloading additional plugins\n"
@@ -22,4 +21,3 @@ do
         printf "\t\t%-15s%10s\n" "${PLUGIN}" "NOT FOUND"
     fi
 done
-rm -rf /etc/ssl/certs/*
