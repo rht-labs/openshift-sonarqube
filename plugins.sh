@@ -4,7 +4,7 @@ set -e
 set -x
 
 printf 'Downloading plugin details\n'
-curl -k -L https://update.sonarsource.org/update-center.properties -o /tmp/pluginList.txt
+curl -k -L -v https://update.sonarsource.org/update-center.properties -o /tmp/pluginList.txt
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
 do
@@ -14,7 +14,7 @@ do
     ## Check to see if plugin exists, attempt to download the plugin if it does exist.
     if ! [[ -z "${DOWNLOAD_URL}" ]]; then
         printf "\t\t%-15s" ${PLUGIN}
-        curl -k -L -o /opt/sonarqube/extensions-init/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} && printf "%10s" "DONE" || printf "%10s" "FAILED"
+        curl -k -L -v -o /opt/sonarqube/extensions-init/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} && printf "%10s" "DONE" || printf "%10s" "FAILED"
         printf "\n"
     else
         ## Plugin was not found in the plugin inventory
