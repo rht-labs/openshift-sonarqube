@@ -7,7 +7,7 @@ printf 'Downloading plugin details\n'
 
 sleep 20
 
-curl -L -sS -o /tmp/pluginList.txt https://update.sonarsource.org/update-center.properties
+curl -sS -o /tmp/pluginList.txt https://update.sonarsource.org/update-center.properties
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
 do
@@ -20,14 +20,22 @@ do
 		## Check to see if plugin exists, attempt to download the plugin if it does exist.
 		if ! [[ -z "${DOWNLOAD_URL}" ]]; then
 			printf "\t\t%-15s" ${PLUGIN}
-			curl -L -sS -o /opt/sonarqube/extensions-init/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} && printf "%10s" "DONE" || printf "%10s" "FAILED"
+			curl -sS -o /opt/sonarqube/extensions-init/plugins/${PLUGIN}.jar ${DOWNLOAD_URL} && printf "%10s" "DONE" || printf "%10s" "FAILED"
 			printf "\n"
 		else
 			## Plugin was not found in the plugin inventory
 			printf "\t\t%-15s%10s\n" "${PLUGIN}" "NOT FOUND"
 		fi
 	else
-		printf "\t\t%-15s%10s\n" $PLUGIN "NOT FOUND"
+	    ## Build Breaker plugin is no longer listed in Update Center, have to add it by URL
+		if [[ "${PLUGIN}" == "buildbreaker" ]]; then
+			BUILD_BREAKER_URL=https://github.com/SonarQubeCommunity/sonar-build-breaker/releases/download/2.2/sonar-build-breaker-plugin-2.2.jar
+			printf "\t\t%-15s" ${PLUGIN}
+			curl -sS -o /opt/sonarqube/extensions-init/plugins/${PLUGIN}.jar ${BUILD_BREAKER_URL} && printf "%10s" "DONE" || printf "%10s" "FAILED"
+			printf "\n"
+		else
+			printf "\t\t%-15s%10s\n" $PLUGIN "NOT FOUND"
+		fi
 	fi
 done
 
