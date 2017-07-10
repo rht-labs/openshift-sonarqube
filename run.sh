@@ -50,7 +50,7 @@ exec java -jar lib/sonar-application-$SONAR_VERSION.jar \
   -Dldap.contextFactoryClass="$SONARQUBE_LDAP_CONTEXTFACTORY" \
   -Dldap.StartTLS="$SONARQUBE_LDAP_STARTTLS" \
   -Dldap.authentication="$SONARQUBE_LDAP_AUTHENTICATION" \
-  -Dldap.user.naseDn="$SONARQUBE_LDAP_USER_BASEDN" \
+  -Dldap.user.baseDn="$SONARQUBE_LDAP_USER_BASEDN" \
   -Dldap.user.request="$SONARQUBE_LDAP_USER_REQUEST" \
   -Dldap.user.realNameAttribute="$SONARQUBE_LDAP_USER_REAL_NAME_ATTR" \
   -Dldap.user.emailAttribute="$SONARQUBE_LDAP_USER_EMAIL_ATTR" \
