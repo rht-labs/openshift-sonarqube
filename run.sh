@@ -4,7 +4,7 @@ set -x
 set -e
 
 if ! [[ "${CA_CERT_URL}X" == "X" ]]; then
-    curl "${CA_CERT_URL}" > /tmp/ca_cert
+    curl -k "${CA_CERT_URL}" > /tmp/ca_cert
 fi
 
 cp /etc/ssl/certs/java/cacerts /opt/sonarqube/cacerts
