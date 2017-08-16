@@ -29,7 +29,8 @@ rm -rf /opt/sonarqube/extensions/plugins
 ln -s /opt/sonarqube/data/plugins /opt/sonarqube/extensions/plugins
 
 if ! [[ "${SONARQUBE_LDAP_URL}X" == "X" ]]; then
-    echo 'sonar.security.realm=LDAP' >> /opt/sonarqube/conf/sonar.properties
+    CONFIG_FILE = $(cat /opt/sonarqube/conf/sonar.properties | grep -v "sonar.security.realm")
+    printf '%s\nsonar.security.realm=LDAP' "${CONFIG_FILE}" >> /opt/sonarqube/conf/sonar.properties
 fi
 
 if [ "${1:0:1}" != '-' ]; then
