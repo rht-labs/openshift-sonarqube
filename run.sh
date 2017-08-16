@@ -11,7 +11,7 @@ cp /etc/ssl/certs/java/cacerts /opt/sonarqube/cacerts
 chmod 775 /opt/sonarqube/cacerts
 
 if [[ -f /tmp/ca_cert ]]; then
-    keytool -importcert -keystore /opt/sonarqube/cacerts -storepass changeit -alias ocp_root -file /tmp/ca_cert
+    keytool -importcert -keystore /opt/sonarqube/cacerts -trustcacerts -noprompt -storepass changeit -alias ocp_root -file /tmp/ca_cert
 fi
 
 ## If the mounted data volume is empty, populate it from the default data
