@@ -39,6 +39,6 @@ if [ "${1:0:1}" != '-' ]; then
 fi
 
 java -jar lib/sonar-application-$SONAR_VERSION.jar \
-    -Djavax.net.ssl.trustStore=/opt/sonarqube/cacerts -Djavax.net.ssl.trustStorePassword=changeit \
+    -Djavax.net.ssl.trustStore=/opt/sonarqube/cacerts -Djavax.net.ssl.trustStorePassword=changeit ${EXTRA_JVM_ARGS} \
     -Dsonar.web.javaAdditionalOpts="${SONARQUBE_WEB_JVM_OPTS} -Djava.security.egd=file:/dev/./urandom" \
     "$@"
