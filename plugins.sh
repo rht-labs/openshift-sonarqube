@@ -40,3 +40,6 @@ do
 done
 
 rm -f /tmp/pluginList.txt
+
+chown root:root /opt/sonarqube -R
+chmod 6775 /opt/sonarqube -R
