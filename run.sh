@@ -21,10 +21,6 @@ if [ "${1:0:1}" != '-' ]; then
   exec "$@"
 fi
 
-#chown -R 0:0 /opt/sonarqube && chmod -R g+rwX /opt/sonarqube
-
-set
-
 java -jar lib/sonar-application-$SONAR_VERSION.jar \
     -Dsonar.web.javaAdditionalOpts="${SONARQUBE_WEB_JVM_OPTS} -Djava.security.egd=file:/dev/./urandom" \
     "$@"
