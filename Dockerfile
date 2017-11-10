@@ -9,3 +9,5 @@ RUN cp -a /opt/sonarqube/data /opt/sonarqube/data-init && \
 	chown 65534:0 /opt/sonarqube && chmod -R gu+rwX /opt/sonarqube
 ADD plugins.sh /opt/sonarqube/bin/plugins.sh
 RUN /opt/sonarqube/bin/plugins.sh pmd gitlab github ldap
+RUN chown root:root /opt/sonarqube -R; \
+    chmod 6775 /opt/sonarqube -R
