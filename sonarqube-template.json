@@ -563,6 +563,10 @@
                                             {
                                                 "name": "SONAR_BUILDBREAKER_DISABLE",
                                                 "value": "${SONAR_BUILDBREAKER_DISABLE}"
+                                            },
+                                            {
+                                                "name": "SONARQUBE_FORCE_AUTHENTICATION",
+                                                "value": "${SONARQUBE_FORCE_AUTHENTICATION}"
                                             }
                                         ],
                                         "imagePullPolicy": "Always",
@@ -840,6 +844,12 @@
                     "name": "SONAR_BUILDBREAKER_DISABLE",
                     "displayName": "Disable Build Breaker plugin",
                     "description": "Build Breaker plugin - Disable the build breaker plugin for all builds",
+                    "value": "true"
+                },
+                {
+                    "name": "SONARQUBE_FORCE_AUTHENTICATION",
+                    "displayName": "Require Authentication",
+                    "description": "Require authentication for all requests to sonarqube",
                     "value": "true"
                 },
                 {
